@@ -2,6 +2,7 @@ import {authRepository} from "../repository/auth-repository";
 import {userService} from "./user-service";
 
 
+
 export const authService = {
 
     async checkCredentials(loginOrEmail: string, password: string) {
@@ -14,6 +15,13 @@ export const authService = {
             return false
         }
         return user
-    }
+    },
+
+
+
+
+
+
+
 
 }

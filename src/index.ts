@@ -21,7 +21,6 @@ const bodyParserWare = express.json()
 app.use(bodyParser.json())
 app.use(bodyParserWare)
 
-
 app.use("/blogs", blogRouter)
 app.use('/posts', postRouter)
 app.use('/testing', testingRouter)
