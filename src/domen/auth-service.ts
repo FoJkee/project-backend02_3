@@ -12,22 +12,22 @@ import e from "express";
 
 export const authService = {
 
-    async checkCredentials(loginOrEmail: string, password: string) {
-        const user = await authRepository.findByLoginOrEmail(loginOrEmail)
-        if (!user) return null
-
-        if (!user.emailConfirmation.isConfirmed) {
-            return null
-        }
-
-        const isHashesEquals = await this._isPasswordCorrect(password, user.accountData.passwordHashNewUser)
-
-        if (isHashesEquals) {
-            return user
-        } else {
-            return null
-        }
-    },
+    // async checkCredentials(loginOrEmail: string, password: string) {
+    //     const user = await authRepository.findByLoginOrEmail(loginOrEmail)
+    //     if (!user) return null
+    //
+    //     if (!user.emailConfirmation.isConfirmed) {
+    //         return null
+    //     }
+    //
+    //     const isHashesEquals = await this._isPasswordCorrect(password, user.accountData.passwordHashNewUser)
+    //
+    //     if (isHashesEquals) {
+    //         return user
+    //     } else {
+    //         return null
+    //     }
+    // },
 
 
     async createRegNewUser(login: string, email: string, password: string): Promise<AccountUserRegType | null> {
@@ -75,7 +75,7 @@ export const authService = {
     //     }
     // },
 
-    async confirmCode(code: string) {
+    async confirmEmail(code: string) {
         let user = await authRepository.findUserByConfirmation(code)
         if (!user) return false
         if (user.emailConfirmation.isConfirmed) return false
@@ -87,16 +87,7 @@ export const authService = {
 
     },
 
-    async confirmEmail(email: string) {
-        let user = await authRepository.findUserByConfirmation(email)
-        if (!user) return false
-        if (user.emailConfirmation.isConfirmed) return false
-        if (user.emailConfirmation.expirationDate < new Date()) return false
 
-        let result = await authRepository.updateConfirmation(user._id)
-        return result
-
-    }
 
 
 }

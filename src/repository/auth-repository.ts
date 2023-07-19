@@ -43,7 +43,7 @@ export const authRepository = {
     async updateConfirmation(_id: ObjectId){
 
         let result = await userAccountCollection.updateOne({_id},
-            {$set: {'emailConfirmation.isConfirmed': true}})
+            {$set: {"emailConfirmation.isConfirmed": true}})
         return result.modifiedCount === 1
     }
 
