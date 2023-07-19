@@ -17,11 +17,11 @@ export const emailAdapters = {
             from: 'Viktor <romanovsky0815@gmail.com>', // sender address
             to: email, // list of receivers
             subject: "Registration", // Subject line
-            text: " <h1>Thank for your registration</h1>\n" +
+            text: "Registration", // plain text body
+            html: " <h1>Thank for your registration</h1>\n" +
                 " <p>To finish registration please follow the link below:\n" +
                 "     <a href='https://somesite.com/confirm-email?code=your_confirmation_code'>complete registration</a>\n" +
-                " </p>", // plain text body
-            html: "<b>Hello world!</b>", // html body
+                " </p>", // html body
         });
 
         return info

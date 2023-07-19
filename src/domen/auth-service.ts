@@ -71,15 +71,15 @@ export const authService = {
         return isEqual
     },
 
-    async checkAndFindUserByToken(token: string) {
-        try {
-            const result: any = jwt.verify(token, jwtSecret)
-            const user = await authRepository.findUserById(new ObjectId(result.userId))
-            return user
-        } catch (error) {
-            return null
-        }
-    },
+    // async checkAndFindUserByToken(token: string) {
+    //     try {
+    //         const result: any = jwt.verify(token, jwtSecret)
+    //         const user = await authRepository.findUserById(new ObjectId(result.userId))
+    //         return user
+    //     } catch (error) {
+    //         return null
+    //     }
+    // },
 
     async confirmCode(code: string) {
         let user = await authRepository.findUserByConfirmation(code)
