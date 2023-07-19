@@ -102,5 +102,13 @@ export const userRepository = {
             userId: el._id.toString()
         }))
 
-    }
+    },
+    async findLoginOrEmail(loginOrEmail: string) {
+        const user = await userCollection.findOne({
+            $or: [{login: loginOrEmail}, {email: loginOrEmail}]
+        })
+        return user
+    },
+
+
 }

@@ -1,35 +1,39 @@
-import  {Response, Router, Request} from "express";
+import {Response, Router, Request} from "express";
 import {authService} from "../domen/auth-service";
 import {jwtService} from "../application/jwt-service";
 import {authPassMiddleware} from "../middleware /authpass-middleware";
 import {errorsMiddleware} from "../middleware /errors-middleware";
 import {userRepository} from "../repository/user-repository";
 import {authBearerMiddleware} from "../middleware /authbearer-middleware";
-import {emailAdapters} from "../adapters/email-adapters";
+import {userService} from "../domen/user-service";
+import {userMiddleware} from "../middleware /user-middleware";
+import {emailConfirmation, emailResending} from "../middleware /email-middleware";
 
 
 export const authRouter = Router({})
 
-authRouter.post('/registration-confirmation', async (req: Request, res: Response) => {
-
-
-})
-authRouter.post('/registration', async (req: Request, res: Response) => {
-    const email  = await emailAdapters.sendEmail(req.body.email)
-
-    res.status(204).json(email)
+authRouter.post('/registration-confirmation', emailConfirmation, errorsMiddleware, async (req: Request, res: Response) => {
+    const result = await authService.confirmCode(req.body.code)
+    return res.status(204).json(result)
 
 })
+authRouter.post('/registration', userMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
+    const user = await authService.createRegNewUser(req.body.login, req.body.email,
+        req.body.password)
 
-authRouter.post('/registration-email-resending', async (req: Request, res: Response) => {
+    return res.status(204).json(user)
 
+})
 
+authRouter.post('/registration-email-resending', emailResending, errorsMiddleware, async (req: Request, res: Response) => {
+    const user = await authService.confirmEmail(req.body.email)
+    return res.status(204).json(user)
 })
 
 
 authRouter.post('/login', authPassMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
 
-    const loginUser = await authService.checkCredentials(req.body.loginOrEmail, req.body.password)
+    const loginUser = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
     if (loginUser) {
         const token = await jwtService.createJwt(loginUser)
         res.status(200).json({accessToken: token})

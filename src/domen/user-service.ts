@@ -4,6 +4,7 @@ import {UserType_Id, UserTypeId} from "../types/user-type";
 import {userCollection} from "../db";
 import {userRepository} from "../repository/user-repository";
 import bcrypt from "bcrypt";
+import {authRepository} from "../repository/auth-repository";
 
 
 export const userService = {
@@ -14,6 +15,18 @@ export const userService = {
 
         return userRepository.getUser(searchLoginTerm, searchEmailTerm, sortBy, sortDirection, pageNumber, pageSize)
 
+    },
+
+    async checkCredentials(loginOrEmail: string, password: string) {
+        const user = await userRepository.findLoginOrEmail(loginOrEmail)
+        if (!user) return false
+
+        const passwordHash = await userService._generateHash(password, user.passwordSalt)
+
+        if (user.passwordHash !== passwordHash) {
+            return false
+        }
+        return user
     },
 
     async createUser(login: string, password: string, email: string): Promise<UserTypeId> {
