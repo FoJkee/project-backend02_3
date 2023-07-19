@@ -9,7 +9,7 @@ export const jwtService = {
 
     async createJwt(user: UserType_Id){
 
-        const token = jwt.sign({user: user._id}, jwtSecret, {expiresIn: '1h'})
+        const token = jwt.sign({user: user._id}, jwtSecret, {expiresIn: '5h'})
         return token
 
     },

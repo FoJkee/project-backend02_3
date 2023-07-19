@@ -42,7 +42,7 @@ export const authService = {
                 createdAt: new Date()
             },
             emailConfirmation: {
-                confirmation: uuidv4(),
+                confirmationCode: uuidv4(),
                 expirationDate: add(new Date(), {
                     hours: 1,
                     minutes: 3
@@ -52,7 +52,6 @@ export const authService = {
         }
         const createResult = authRepository.createRegNewUser(userRegistration)
         await emailAdapters.sendEmail(email)
-
         return createResult
     },
 
@@ -80,7 +79,7 @@ export const authService = {
         let user = await authRepository.findUserByConfirmation(code)
         if (!user) return false
         if (user.emailConfirmation.isConfirmed) return false
-        if (user.emailConfirmation.confirmation !== code) return false
+        if (user.emailConfirmation.confirmationCode !== code) return false
         if (user.emailConfirmation.expirationDate < new Date()) return false
 
         let result = await authRepository.updateConfirmation(user._id)
@@ -92,7 +91,6 @@ export const authService = {
         let user = await authRepository.findUserByConfirmation(email)
         if (!user) return false
         if (user.emailConfirmation.isConfirmed) return false
-        if (user.emailConfirmation.confirmation !== email) return false
         if (user.emailConfirmation.expirationDate < new Date()) return false
 
         let result = await authRepository.updateConfirmation(user._id)

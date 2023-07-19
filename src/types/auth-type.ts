@@ -9,7 +9,7 @@ export type AccountUserRegType = WithId<{
         createdAt: Date
     },
     emailConfirmation: {
-        confirmation: string,
+        confirmationCode: string,
         expirationDate: Date
         isConfirmed: false
     }
