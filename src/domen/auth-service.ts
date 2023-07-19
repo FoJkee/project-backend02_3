@@ -10,18 +10,17 @@ import {emailAdapters} from "../adapters/email-adapters";
 import e from "express";
 
 
-
 export const authService = {
 
     async checkCredentials(loginOrEmail: string, password: string) {
         const user = await authRepository.findByLoginOrEmail(loginOrEmail)
         if (!user) return null
 
-        if(!user.emailConfirmation.isConfirmed){
+        if (!user.emailConfirmation.isConfirmed) {
             return null
         }
 
-        const isHashesEquals  = await this._isPasswordCorrect(password, user.accountData.passwordHashNewUser)
+        const isHashesEquals = await this._isPasswordCorrect(password, user.accountData.passwordHashNewUser)
 
         if (isHashesEquals) {
             return user
@@ -52,11 +51,7 @@ export const authService = {
             }
         }
         const createResult = authRepository.createRegNewUser(userRegistration)
-        try {
-            await emailAdapters.sendEmail(email)
-        } catch (error) {
-            return null
-        }
+        await emailAdapters.sendEmail(email)
 
         return createResult
     },
@@ -84,7 +79,7 @@ export const authService = {
     async confirmCode(code: string) {
         let user = await authRepository.findUserByConfirmation(code)
         if (!user) return false
-        if(user.emailConfirmation.isConfirmed) return false
+        if (user.emailConfirmation.isConfirmed) return false
         if (user.emailConfirmation.confirmation !== code) return false
         if (user.emailConfirmation.expirationDate < new Date()) return false
 
@@ -96,7 +91,7 @@ export const authService = {
     async confirmEmail(email: string) {
         let user = await authRepository.findUserByConfirmation(email)
         if (!user) return false
-        if(user.emailConfirmation.isConfirmed) return false
+        if (user.emailConfirmation.isConfirmed) return false
         if (user.emailConfirmation.confirmation !== email) return false
         if (user.emailConfirmation.expirationDate < new Date()) return false
 
