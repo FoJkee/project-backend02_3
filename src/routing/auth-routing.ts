@@ -14,6 +14,7 @@ export const authRouter = Router({})
 
 authRouter.post('/registration-confirmation', emailConfirmation, errorsMiddleware, async (req: Request, res: Response) => {
     const result = await authService.confirmCode(req.body.code)
+
     return res.status(204).json(result)
 
 })
@@ -21,7 +22,11 @@ authRouter.post('/registration', userMiddleware, errorsMiddleware, async (req: R
     const user = await authService.createRegNewUser(req.body.login, req.body.email,
         req.body.password)
 
-    return res.status(204).json(user)
+    if(!user){
+        res.sendStatus(400)
+    } else {
+        res.status(204).json(user)
+    }
 
 })
 
