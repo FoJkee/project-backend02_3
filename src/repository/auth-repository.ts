@@ -6,25 +6,11 @@ import {ObjectId} from "mongodb";
 
 export const authRepository = {
 
-
-
-
-
    async createRegNewUser(userRegistration: AccountUserRegType){
         const result = await userAccountCollection.insertOne(userRegistration)
        return userRegistration
     },
 
-
-
-    async findUserById(id:ObjectId): Promise<AccountUserRegType | null>{
-        let product = await userAccountCollection.findOne({_id: id})
-        if(product){
-            return product
-        } else {
-            return null
-        }
-    },
 
     async findByLoginOrEmail(loginOrEmail: string){
         const user = await userAccountCollection.findOne(
@@ -37,8 +23,6 @@ export const authRepository = {
             {'emailConfirmation.confirmationCode': emailConfirmationCode})
         return user
     },
-
-
 
     async updateConfirmation(_id: ObjectId){
 

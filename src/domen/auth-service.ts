@@ -75,7 +75,7 @@ export const authService = {
     //     }
     // },
 
-    async confirmEmail(code: string) {
+    async confirmCode(code: string) {
         let user = await authRepository.findUserByConfirmation(code)
         if (!user) return false
         if (user.emailConfirmation.isConfirmed) return false
@@ -86,7 +86,17 @@ export const authService = {
         return result
 
     },
+    async confirmEmail(email: string) {
+        let user = await authRepository.findByLoginOrEmail(email)
+        if (!user) return false
+        if (user.emailConfirmation.isConfirmed) return false
+        if (user.emailConfirmation.confirmationCode !== email) return false
+        if (user.emailConfirmation.expirationDate < new Date()) return false
 
+        let result = await authRepository.updateConfirmation(user._id)
+        return result
+
+    },
 
 
 
