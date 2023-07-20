@@ -13,26 +13,30 @@ import {emailConfirmation, emailResending} from "../middleware /email-middleware
 export const authRouter = Router({})
 
 authRouter.post('/registration-confirmation', emailConfirmation, errorsMiddleware, async (req: Request, res: Response) => {
-    const result = await authService.confirmCode(req.body.code)
-
+    const result = await userService.confirmCode(req.body.code)
     return res.status(204).json(result)
 
 })
 authRouter.post('/registration', userMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
-    const user = await authService.createRegNewUser(req.body.login, req.body.email,
-        req.body.password)
-    if (!user) {
-        res.sendStatus(400)
-    } else {
+    const registrationUser = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
+
+    if (registrationUser) {
+        const user = await userService.createUser(req.body.login, req.body.email,        req.body.password)
         res.status(204).json(user)
+    } else {
+        res.sendStatus(400)
     }
 })
 authRouter.post('/registration-email-resending', emailResending, errorsMiddleware, async (req: Request, res: Response) => {
-    const result = await authService.confirmEmail(req.body.email)
+    const result = await userService.confirmEmail(req.body.email, String(req.query.code))
 
     return res.status(204).json(result)
 
 })
+
+
+
+
 
 
 

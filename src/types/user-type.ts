@@ -1,4 +1,4 @@
-import {ObjectId} from "mongodb";
+import {ObjectId, WithId} from "mongodb";
 
 export type UserType_Id = {
     _id: ObjectId,
@@ -6,10 +6,16 @@ export type UserType_Id = {
     email: string,
     passwordHash: string,
     passwordSalt: string,
-    createdAt: string
+    createdAt: Date,
+    emailConfirmation: {
+        confirmationCode: string,
+        expirationDate: Date,
+        isConfirmed: boolean
+    }
 }
 
-export type UserTypeId= {id: string} & Omit<UserType_Id, "_id" | 'passwordHash' | 'passwordSalt'>
+export type UserTypeId = { id: string } & Omit<UserType_Id, "_id" | 'passwordHash' |
+    'passwordSalt' | 'emailConfirmation'>
 
 
 export type QueryParamsUser = {
@@ -21,4 +27,5 @@ export type QueryParamsUser = {
     searchEmailTerm: string
 }
 
-export type UserMe = {userId : string} & Omit<UserTypeId, 'createdAt' | 'id'>
+export type UserMe = { userId: string } & Omit<UserTypeId, 'createdAt' | 'id'>
+

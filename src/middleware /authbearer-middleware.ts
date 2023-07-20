@@ -1,6 +1,7 @@
 import {Request, Response, NextFunction} from "express";
 import {jwtService} from "../application/jwt-service";
 import {userService} from "../domen/user-service";
+import {ObjectId} from "mongodb";
 
 
 export const authBearerMiddleware = async (req: Request, res: Response, next: NextFunction) => {
@@ -16,7 +17,7 @@ export const authBearerMiddleware = async (req: Request, res: Response, next: Ne
     const userId = await jwtService.getUserByToken(token)
 
     if (userId) {
-        req.user = await userService.getUserId(String(userId))
+        req.user = await userService.getUserId((String(userId)))
         return next()
     }
     res.sendStatus(401)

@@ -88,8 +88,6 @@ export const userRepository = {
     async deleteUserAll(): Promise<boolean> {
         const deleteUserAll = await userCollection.deleteMany({})
         return deleteUserAll.deletedCount === 1
-
-
     },
 
     async getMe(): Promise<UserMe[] | null> {
@@ -110,5 +108,16 @@ export const userRepository = {
         return user
     },
 
+    async updateConfirmation(id: ObjectId) {
+        const result = await userCollection.updateOne({_id: id},
+            {$set: {"emailConfirmation.isConfirmed": true}})
+        return result.modifiedCount === 1
+    },
+
+    async findUserByConfirmationCode(emailConfirmationCode: string){
+        const user = await userCollection.findOne({
+            'emailConfirmation.confirmationCode': emailConfirmationCode})
+        return user
+    }
 
 }

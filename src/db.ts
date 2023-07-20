@@ -4,7 +4,6 @@ import {BlogType_Id} from "./types/blog-type";
 import {PostType_Id} from "./types/post-type";
 import {UserType_Id} from "./types/user-type";
 import {CommentType_Id} from "./types/comment-type";
-import {AccountUserRegType} from "./types/auth-type";
 
 dotenv.config()
 
@@ -28,7 +27,6 @@ export const blogCollection = db.collection<BlogType_Id>('blogs')
 export const postCollection = db.collection<PostType_Id>('posts')
 export const userCollection = db.collection<UserType_Id>('users')
 export const commentCollection = db.collection<CommentType_Id>('comments')
-export const userAccountCollection = db.collection<AccountUserRegType>('accounts')
 
 
 export async function runDb() {

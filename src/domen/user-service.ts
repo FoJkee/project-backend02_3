@@ -1,10 +1,13 @@
 import {Filter, ObjectId, Sort, SortDirection} from "mongodb";
 import {Paginated} from "../types/blog-type";
 import {UserType_Id, UserTypeId} from "../types/user-type";
-import {userCollection} from "../db";
 import {userRepository} from "../repository/user-repository";
 import bcrypt from "bcrypt";
-import {authRepository} from "../repository/auth-repository";
+import {v4 as uuidv4} from "uuid";
+import add from "date-fns/add";
+import {emailAdapters} from "../adapters/email-adapters";
+import {emailConfirmation} from "../middleware /email-middleware";
+import * as fs from "fs";
 
 
 export const userService = {
@@ -19,9 +22,11 @@ export const userService = {
 
     async checkCredentials(loginOrEmail: string, password: string) {
         const user = await userRepository.findLoginOrEmail(loginOrEmail)
-        if (!user) return false
+        if (!user) return null
 
-        const passwordHash = await userService._generateHash(password, user.passwordSalt)
+        if (!user.emailConfirmation.isConfirmed) return false
+
+        const passwordHash = await this._generateHash(password, user.passwordSalt)
 
         if (user.passwordHash !== passwordHash) {
             return false
@@ -29,7 +34,7 @@ export const userService = {
         return user
     },
 
-    async createUser(login: string, password: string, email: string): Promise<UserTypeId> {
+    async createUser(login: string, password: string, email: string): Promise<UserTypeId | null> {
 
         const passwordSalt = await bcrypt.genSalt(10)
         const passwordHash = await this._generateHash(password, passwordSalt)
@@ -40,9 +45,26 @@ export const userService = {
             email,
             passwordHash,
             passwordSalt,
-            createdAt: new Date().toISOString()
+            createdAt: new Date(),
+            emailConfirmation: {
+                confirmationCode: uuidv4(),
+                expirationDate: add(new Date(), {
+                    hours: 1,
+                    minutes: 3
+                }),
+                isConfirmed: false
+            }
         }
-        return userRepository.createUser(userNew)
+
+        const createResult = userRepository.createUser(userNew)
+        try {
+            await emailAdapters.sendEmail(email)
+        } catch (error) {
+            console.error(error)
+            await userRepository.deleteUserId('id')
+            return null
+        }
+        return createResult
 
     },
 
@@ -62,6 +84,29 @@ export const userService = {
 
     async deleteUserAll(): Promise<boolean> {
         return userRepository.deleteUserAll()
+    },
+
+    async confirmCode(code: string) {
+        const user = await userRepository.findUserByConfirmationCode(code)
+        if (!user) return false
+        if (user.emailConfirmation.isConfirmed) return false
+        if (user.emailConfirmation.confirmationCode !== code) return false
+        if (user.emailConfirmation.expirationDate < new Date()) return false
+
+        const result = await userRepository.updateConfirmation(user._id)
+        return result
+
+
+    },
+
+    async confirmEmail(email: string, code: string) {
+        const user = await userRepository.findLoginOrEmail(email)
+        if (!user) return false
+        if (user.emailConfirmation.isConfirmed) return false
+        if (user.emailConfirmation.confirmationCode !== code) return false
+        if (user.emailConfirmation.expirationDate < new Date()) return false
+        return user
     }
+
 
 }
