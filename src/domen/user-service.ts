@@ -34,7 +34,7 @@ export const userService = {
         return user
     },
 
-    async createUser(login: string, password: string, email: string): Promise<UserTypeId | false> {
+    async createUser(login: string, password: string, email: string): Promise<UserTypeId | null> {
 
         const passwordSalt = await bcrypt.genSalt(10)
         const passwordHash = await this._generateHash(password, passwordSalt)
@@ -62,7 +62,7 @@ export const userService = {
         } catch (error) {
             console.error(error)
             await userRepository.deleteUserId(userNew._id)
-            return false
+            return null
         }
         return createResult
 
@@ -86,11 +86,11 @@ export const userService = {
         return userRepository.deleteUserAll()
     },
 
-    async confirmCode(emailConfirmationCode: string) {
-        const user = await userRepository.findUserByConfirmationCode(emailConfirmationCode)
+    async confirmCode(code: string) {
+        const user = await userRepository.findUserByConfirmationCode(code)
         if (!user) return false
         if (user.emailConfirmation.isConfirmed) return false
-        if (user.emailConfirmation.confirmationCode !== emailConfirmationCode) return false
+        if (user.emailConfirmation.confirmationCode !== code) return false
         if (user.emailConfirmation.expirationDate < new Date()) return false
 
         const result = await userRepository.updateConfirmation(user._id)
@@ -99,14 +99,12 @@ export const userService = {
 
     },
 
-    async confirmEmail(email: string, code: string) {
+    async confirmEmail(email: string) {
         const user = await userRepository.findLoginOrEmail(email)
         if (!user) return false
         if (user.emailConfirmation.isConfirmed) return false
-        if (user.emailConfirmation.expirationDate < new Date()) return false
 
-        const result = await emailAdapters.sendEmail(email, code)
-        return result
+        return user
     }
 
 
