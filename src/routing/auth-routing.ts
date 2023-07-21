@@ -16,38 +16,45 @@ authRouter.post('/registration-confirmation', emailConfirmation, errorsMiddlewar
     const result = await userService.confirmCode(req.body.code)
 
     if (result) {
-        const registrationUser = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
+        return res.sendStatus(204)
 
-        res.status(204).json(registrationUser)
     } else {
 
-        res.sendStatus(400)
+        return res.sendStatus(400)
 
     }
 })
 
 authRouter.post('/registration', userMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
 
-    const user = await userService.createUser(req.body.login, req.body.password, req.body.email)
-
-    return res.status(204).json(user)
-
+    const registrationUser = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
+    if (registrationUser) {
+        return res.sendStatus(400)
+    } else {
+        const user = await userService.createUser(req.body.login, req.body.password, req.body.email)
+        return res.status(204).json(user)
+    }
 
 })
 
 
 authRouter.post('/registration-email-resending', emailResending, errorsMiddleware, async (req: Request, res: Response) => {
-
+//check does user exist by email
+    //
     const result = await userService.confirmEmail(req.body.email)
 
     if (!result) {
         res.sendStatus(204)
     } else {
-        const registrationUser = await userService.createUser(req.body.login, req.body.password, req.body.email)
-
+        const registrationUser = await userService.createNewEmailConfirmation()
         res.status(400).json(registrationUser)
     }
 })
+
+
+
+
+
 
 
 authRouter.post('/login', authPassMiddleware, errorsMiddleware, async (req: Request, res: Response) => {

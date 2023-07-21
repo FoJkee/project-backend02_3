@@ -23,7 +23,6 @@ export const userService = {
         const user = await userRepository.findLoginOrEmail(loginOrEmail)
         if (!user) return null
 
-        // if (!user.emailConfirmation.isConfirmed) return false
 
 
         const passwordHash = await this._generateHash(password, user.passwordSalt)
@@ -68,6 +67,20 @@ export const userService = {
 
     },
 
+    async createNewEmailConfirmation () {
+        const code = uuidv4()
+        const newEmail = {
+           emailConfirmation: {
+               confirmationCode: code,
+               expirationDate: add(new Date(), {
+                   hours: 1,
+                   minutes: 3
+               }),
+           }
+       }
+       return newEmail
+    },
+
     async getUserId(id: string): Promise<UserTypeId | null> {
         return userRepository.getUserId(id)
 
@@ -90,7 +103,6 @@ export const userService = {
         const user = await userRepository.findUserByConfirmationCode(code)
         if (!user) return false
         if (user.emailConfirmation.isConfirmed) return false
-        if (user.emailConfirmation.confirmationCode !== code) return false
         if (user.emailConfirmation.expirationDate < new Date()) return false
 
         const result = await userRepository.updateConfirmation(user._id)
@@ -104,8 +116,7 @@ export const userService = {
         if (user.emailConfirmation.isConfirmed) return false
         if (user.emailConfirmation.expirationDate < new Date()) return false
 
-        const result = await userRepository.updateConfirmation(user._id)
-        return result
+        return user
     }
 
 
