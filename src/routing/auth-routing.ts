@@ -14,35 +14,25 @@ import {randomUUID} from "crypto";
 export const authRouter = Router({})
 
 authRouter.post('/registration-confirmation', emailConfirmation, errorsMiddleware, async (req: Request, res: Response) => {
-    const result = await userService.confirmCode(req.body.code)
+    const result = await userService.confirmCode(req.body.emailConfirmationCode)
 
-    if (result) {
-        const registrationUser = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
-        res.status(204).json(registrationUser)
-    } else {
-        res.sendStatus(400)
-
-    }
+    return res.status(204).json(result)
 
 })
-authRouter.post('/registration', errorsMiddleware, async (req: Request, res: Response) => {
-    console.log("req.body.email", req.body.email)
+
+authRouter.post('/registration', userMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
+
     const user = await userService.createUser(req.body.login, req.body.password, req.body.email)
 
-    const guid = randomUUID()
-    return   res.status(204).json(user)
+    return res.status(204).json(user)
+
 })
 authRouter.post('/registration-email-resending', emailResending, errorsMiddleware, async (req: Request, res: Response) => {
 
-    const result = await userService.confirmEmail(req.body.email)
-    if (result) {
-        const registrationUser = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
+    const result = await userService.confirmEmail(req.body.email, req.body.code)
 
-        res.status(204).json(registrationUser)
-    } else {
-        res.sendStatus(400)
 
-    }
+    return res.status(204).json(result)
 
 })
 
