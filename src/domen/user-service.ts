@@ -96,16 +96,16 @@ export const userService = {
         const result = await userRepository.updateConfirmation(user._id)
         return result
 
-
     },
 
     async confirmEmail(email: string) {
         const user = await userRepository.findLoginOrEmail(email)
         if (!user) return false
         if (user.emailConfirmation.isConfirmed) return false
-        if(user.emailConfirmation.expirationDate < new Date()) return false
+        if (user.emailConfirmation.expirationDate < new Date()) return false
 
-        return user
+        const result = await userRepository.updateConfirmation(user._id)
+        return result
     }
 
 
