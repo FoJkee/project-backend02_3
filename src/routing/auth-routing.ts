@@ -8,16 +8,21 @@ import {authBearerMiddleware} from "../middleware /authbearer-middleware";
 import {userService} from "../domen/user-service";
 import {userMiddleware} from "../middleware /user-middleware";
 import {emailConfirmation, emailResending} from "../middleware /email-middleware";
-import {randomUUID} from "crypto";
 
 
 export const authRouter = Router({})
 
 authRouter.post('/registration-confirmation', emailConfirmation, errorsMiddleware, async (req: Request, res: Response) => {
-    const result = await userService.confirmCode(req.body.emailConfirmationCode)
+    const result = await userService.confirmCode(req.body.code)
 
-    return res.status(204).json(result)
+    if (result) {
+        res.sendStatus(204)
+    } else {
+        const registrationUser = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
 
+        res.status(400).json(registrationUser)
+
+    }
 })
 
 authRouter.post('/registration', userMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
@@ -30,10 +35,14 @@ authRouter.post('/registration', userMiddleware, errorsMiddleware, async (req: R
 authRouter.post('/registration-email-resending', emailResending, errorsMiddleware, async (req: Request, res: Response) => {
 
     const result = await userService.confirmEmail(req.body.email, req.body.code)
+    if (result) {
 
+        res.sendStatus(204)
+    } else {
+        const registrationUser = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
 
-    return res.status(204).json(result)
-
+        res.status(400).json(registrationUser)
+    }
 })
 
 
