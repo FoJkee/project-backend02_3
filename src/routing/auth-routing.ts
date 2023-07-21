@@ -8,6 +8,7 @@ import {authBearerMiddleware} from "../middleware /authbearer-middleware";
 import {userService} from "../domen/user-service";
 import {userMiddleware} from "../middleware /user-middleware";
 import {emailConfirmation, emailResending} from "../middleware /email-middleware";
+import {randomUUID} from "crypto";
 
 
 export const authRouter = Router({})
@@ -24,17 +25,16 @@ authRouter.post('/registration-confirmation', emailConfirmation, errorsMiddlewar
     }
 
 })
-authRouter.post('/registration', userMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
-    const user = await userService.createUser(req.body.login, req.body.email, req.body.password)
-    if (user) {
-        res.status(204).json(user)
-    } else {
-        res.sendStatus(400)
-    }
+authRouter.post('/registration', errorsMiddleware, async (req: Request, res: Response) => {
+    console.log("req.body.email", req.body.email)
+    const user = await userService.createUser(req.body.login, req.body.password, req.body.email)
+
+    const guid = randomUUID()
+    return   res.status(204).json(user)
 })
 authRouter.post('/registration-email-resending', emailResending, errorsMiddleware, async (req: Request, res: Response) => {
 
-    const result = await userService.confirmEmail(req.body.email, String(req.query.code))
+    const result = await userService.confirmEmail(req.body.email)
     if (result) {
         const registrationUser = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
 

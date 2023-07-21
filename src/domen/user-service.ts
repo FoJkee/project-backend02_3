@@ -6,8 +6,8 @@ import bcrypt from "bcrypt";
 import {v4 as uuidv4} from "uuid";
 import add from "date-fns/add";
 import {emailAdapters} from "../adapters/email-adapters";
-import {emailConfirmation} from "../middleware /email-middleware";
-import * as fs from "fs";
+import {tr} from "date-fns/locale";
+
 
 
 export const userService = {
@@ -24,7 +24,7 @@ export const userService = {
         const user = await userRepository.findLoginOrEmail(loginOrEmail)
         if (!user) return null
 
-        if (!user.emailConfirmation.isConfirmed) return false
+        // if (!user.emailConfirmation.isConfirmed) return false
 
         const passwordHash = await this._generateHash(password, user.passwordSalt)
 
@@ -34,11 +34,13 @@ export const userService = {
         return user
     },
 
-    async createUser(login: string, password: string, email: string): Promise<UserTypeId | null> {
-
+    async createUser(login: string, password: string, email: string): Promise<UserTypeId | false> {
+        console.log('email38', email)
+        console.log('login', login)
+        console.log('password', password)
         const passwordSalt = await bcrypt.genSalt(10)
         const passwordHash = await this._generateHash(password, passwordSalt)
-
+         const code = uuidv4()
         const userNew: UserType_Id = {
             _id: new ObjectId(),
             login,
@@ -47,7 +49,7 @@ export const userService = {
             passwordSalt,
             createdAt: new Date(),
             emailConfirmation: {
-                confirmationCode: uuidv4(),
+                confirmationCode: code,
                 expirationDate: add(new Date(), {
                     hours: 1,
                     minutes: 3
@@ -55,14 +57,14 @@ export const userService = {
                 isConfirmed: false
             }
         }
-
-        const createResult = userRepository.createUser(userNew)
+        const createResult = await userRepository.createUser(userNew)
         try {
-            await emailAdapters.sendEmail(email)
+            await emailAdapters.sendEmail(email, code)
+
         } catch (error) {
             console.error(error)
-            await userRepository.deleteUserId('id')
-            return null
+            await userRepository.deleteUserId(userNew._id)
+            return false
         }
         return createResult
 
@@ -78,7 +80,7 @@ export const userService = {
         return hash
     },
 
-    async deleteUserId(id: string): Promise<boolean> {
+    async deleteUserId(id: ObjectId): Promise<boolean> {
         return userRepository.deleteUserId(id)
     },
 
@@ -99,12 +101,11 @@ export const userService = {
 
     },
 
-    async confirmEmail(email: string, code: string) {
+    async confirmEmail(email: string) {
         const user = await userRepository.findLoginOrEmail(email)
         if (!user) return false
         if (user.emailConfirmation.isConfirmed) return false
-        if (user.emailConfirmation.confirmationCode !== code) return false
-        if (user.emailConfirmation.expirationDate < new Date()) return false
+        const  codes = uuidv4()
         return user
     }
 

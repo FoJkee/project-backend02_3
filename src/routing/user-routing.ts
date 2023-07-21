@@ -38,7 +38,7 @@ userRouter.delete('/:id', authMiddleware, async (req: Request, res: Response) =>
         res.sendStatus(404)
         return
     }
-    const deleteUserId = await userService.deleteUserId(req.params.id)
+    const deleteUserId = await userService.deleteUserId(new ObjectId(req.params.id))
     res.sendStatus(204)
 
 
