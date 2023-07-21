@@ -23,8 +23,6 @@ export const userService = {
         const user = await userRepository.findLoginOrEmail(loginOrEmail)
         if (!user) return null
 
-
-
         const passwordHash = await this._generateHash(password, user.passwordSalt)
 
         if (user.passwordHash !== passwordHash) {
@@ -67,7 +65,7 @@ export const userService = {
 
     },
 
-    async createNewEmailConfirmation () {
+    async createNewEmailConfirmation (email: string) {
         const code = uuidv4()
         const newEmail = {
            emailConfirmation: {
@@ -78,6 +76,7 @@ export const userService = {
                }),
            }
        }
+       await emailAdapters.sendEmail(email,code)
        return newEmail
     },
 
