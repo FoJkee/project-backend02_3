@@ -23,7 +23,7 @@ export const userService = {
         const user = await userRepository.findLoginOrEmail(loginOrEmail)
         if (!user) return null
 
-        if (!user.emailConfirmation.isConfirmed) return false
+        // if (!user.emailConfirmation.isConfirmed) return false
 
 
         const passwordHash = await this._generateHash(password, user.passwordSalt)

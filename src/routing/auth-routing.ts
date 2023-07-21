@@ -33,6 +33,8 @@ authRouter.post('/registration', userMiddleware, errorsMiddleware, async (req: R
     return res.status(204).json(user)
 
 })
+
+
 authRouter.post('/registration-email-resending', emailResending, errorsMiddleware, async (req: Request, res: Response) => {
 
     const result = await userService.confirmEmail(req.body.email)
@@ -44,6 +46,10 @@ authRouter.post('/registration-email-resending', emailResending, errorsMiddlewar
         res.sendStatus(400)
     }
 })
+
+
+
+
 
 
 authRouter.post('/login', authPassMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
