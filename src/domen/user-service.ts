@@ -60,7 +60,7 @@ export const userService = {
 
         } catch (error) {
             console.error(error)
-            await userRepository.deleteUserId(userNew._id)
+            await userRepository.deleteUserId(userNew!._id)
             return null
         }
         return createResult
