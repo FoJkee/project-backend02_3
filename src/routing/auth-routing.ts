@@ -26,14 +26,13 @@ authRouter.post('/registration-confirmation', emailConfirmation, errorsMiddlewar
 authRouter.post('/registration', userMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
 
     const result = await userService.confirmEmail(req.body.email)
-
     if (result) {
-        const registrationUser = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
         return res.sendStatus(400)
-    } else {
-        const user = await userService.createUser(req.body.login, req.body.password, req.body.email)
-        return res.sendStatus(204)
     }
+
+    const user = await userService.createUser(req.body.login, req.body.password, req.body.email)
+    return res.status(204).json(user)
+
 
 })
 
@@ -44,17 +43,12 @@ authRouter.post('/registration-email-resending', emailResending, errorsMiddlewar
     const result = await userService.confirmEmail(req.body.email)
 
     if (result) {
-       return res.sendStatus(400)
+        return res.sendStatus(400)
     } else {
         const registrationUser = await userService.createNewEmailConfirmation(req.body.email)
-       return  res.status(204).json(registrationUser)
+        return res.status(204).json(registrationUser)
     }
 })
-
-
-
-
-
 
 
 authRouter.post('/login', authPassMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
