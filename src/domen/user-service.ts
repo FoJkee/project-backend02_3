@@ -78,7 +78,6 @@ export const userService = {
                }),
            }
        }
-       await emailAdapters.sendEmail(email,code)
        return newEmail
     },
 
