@@ -116,7 +116,7 @@ export const userRepository = {
 
     async findUserByConfirmationCode(code: string){
         const user = await userCollection.findOne({
-            'emailConfirmation.confirmationCode': code})
+            confirmationCode: code})
         return user
     }
 

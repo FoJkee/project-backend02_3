@@ -3,7 +3,7 @@ import {userCollection} from "../db";
 
 const patternEmail = '^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$'
 export const emailResending = body('email').exists()
-    .isString().withMessage('Incorrect email').matches(patternEmail).withMessage('Incorrect email')
+    .isString().matches(patternEmail).withMessage('Incorrect email')
 
 
 

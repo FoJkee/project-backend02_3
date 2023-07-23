@@ -124,15 +124,15 @@ export const userService = {
     },
 
 
-    // async _findUserByCode(code: string): Promise<UserType_Id | null> {
-    //
-    //     const user = await userRepository.findUserByConfirmationCode(code)
-    //     if (!user) return null
-    //     if (user.emailConfirmation.isConfirmed) return null
-    //     if (user.emailConfirmation.expirationDate < new Date()) return null
-    //
-    //     return user
-    // }
+    async _findUserByCode(code: string): Promise<UserType_Id | null> {
+
+        const user = await userRepository.findUserByConfirmationCode(code)
+        if (!user) return null
+        if (user.emailConfirmation.isConfirmed) return null
+        if (user.emailConfirmation.expirationDate < new Date()) return null
+
+        return user
+    }
 
 
 }
