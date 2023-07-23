@@ -24,9 +24,10 @@ authRouter.post('/registration-confirmation', emailConfirmation, errorsMiddlewar
 })
 
 authRouter.post('/registration', userMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
+    const result = await userService.confirmEmail(req.body.email)
 
-    const registrationUser = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
-    if (registrationUser) {
+    if (result) {
+        const registrationUser = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
         return res.sendStatus(400)
     } else {
         const user = await userService.createUser(req.body.login, req.body.password, req.body.email)
