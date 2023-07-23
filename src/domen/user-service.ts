@@ -8,7 +8,7 @@ import add from "date-fns/add";
 import {emailAdapters} from "../adapters/email-adapters";
 import {emailConfirmation, emailResending} from "../middleware /email-middleware";
 import {userCollection} from "../db";
-import {id} from "date-fns/locale";
+import {id, tr} from "date-fns/locale";
 
 
 export const userService = {
@@ -67,18 +67,25 @@ export const userService = {
 
     },
 
-    async createNewEmailConfirmation (email: string) {
+    async createNewEmailConfirmation(email: string) {
         const code = uuidv4()
         const newEmail = {
-           emailConfirmation: {
-               confirmationCode: code,
-               expirationDate: add(new Date(), {
-                   hours: 1,
-                   minutes: 3
-               }),
-           }
-       }
-       return newEmail
+            emailConfirmation: {
+                confirmationCode: code,
+                expirationDate: add(new Date(), {
+                    hours: 1,
+                    minutes: 3
+                }),
+            }
+        }
+        try {
+            await emailAdapters.sendEmail(email, code)
+        } catch (e) {
+            console.error(e)
+            await this.confirmCode(code)
+            return null
+        }
+        return newEmail
     },
 
     async getUserId(id: string): Promise<UserTypeId | null> {

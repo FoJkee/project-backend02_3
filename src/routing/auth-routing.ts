@@ -26,10 +26,7 @@ authRouter.post('/registration-confirmation', emailConfirmation, errorsMiddlewar
 authRouter.post('/registration', userMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
 
     const user = await userService.createUser(req.body.login, req.body.password, req.body.email)
-    console.log('router', user)
     return res.sendStatus(204)
-
-
 })
 
 
