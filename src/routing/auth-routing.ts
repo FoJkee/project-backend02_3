@@ -14,7 +14,11 @@ export const authRouter = Router({})
 
 authRouter.post('/registration-confirmation', emailConfirmation, errorsMiddleware, async (req: Request, res: Response) => {
     const result = await userService.confirmCode(req.body.code)
-    return res.sendStatus(204)
+    if(result){
+       return  res.sendStatus(400)
+    } else {
+        return res.sendStatus(204)
+    }
 
 })
 
