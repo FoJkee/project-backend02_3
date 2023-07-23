@@ -54,7 +54,7 @@ export const userService = {
         }
         const createResult = await userRepository.createUser(userNew)
         try {
-            await emailAdapters.sendEmail(code)
+            await emailAdapters.sendEmail(email, code)
 
         } catch (error) {
             console.error(error)
@@ -65,7 +65,7 @@ export const userService = {
 
     },
 
-    async createNewEmailConfirmation () {
+    async createNewEmailConfirmation (email: string) {
         const code = uuidv4()
         const newEmail = {
            emailConfirmation: {
@@ -76,7 +76,7 @@ export const userService = {
                }),
            }
        }
-       await emailAdapters.sendEmail(code)
+       await emailAdapters.sendEmail(email,code)
        return newEmail
     },
 
