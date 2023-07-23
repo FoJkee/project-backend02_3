@@ -34,7 +34,7 @@ authRouter.post('/registration', userMiddleware, errorsMiddleware, async (req: R
 
 authRouter.post('/registration-email-resending', emailResending, errorsMiddleware, async (req: Request, res: Response) => {
 
-     const result = await userService.confirmEmail(req.body.email)
+     const result = await userService.confirmCode(req.body.code)
 
     if (result) {
         return res.sendStatus(400)
