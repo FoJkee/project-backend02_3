@@ -67,7 +67,7 @@ export const userService = {
 
     },
 
-    async createNewEmailConfirmation(email: string) {
+    async createNewEmailConfirmation() {
         const code = uuidv4()
         const newEmail = {
             emailConfirmation: {
@@ -77,14 +77,6 @@ export const userService = {
                     minutes: 3
                 }),
             }
-        }
-        try {
-            await this._findUserByCode(code)
-            await emailAdapters.sendEmail(email, code)
-        } catch (e) {
-            console.error(e)
-
-            return null
         }
         return newEmail
     },
@@ -109,12 +101,8 @@ export const userService = {
 
     async confirmCode(code: string) {
         const user = await this._findUserByCode(code)
-        // const user = await userRepository.findUserByConfirmationCode(code)
-        // if (!user) return null
-        // if (user.emailConfirmation.isConfirmed) return null
-        // if (user.emailConfirmation.expirationDate < new Date()) return null
 
-        const result = await userRepository.updateConfirmation(new ObjectId())
+        const result = await userRepository.updateConfirmation(user!._id)
         return result
 
     },
