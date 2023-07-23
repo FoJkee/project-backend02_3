@@ -113,6 +113,7 @@ export const userService = {
     },
 
     async confirmEmail(email: string) {
+
         const user = await userRepository.findLoginOrEmail(email)
         if (!user) return false
         if (user.emailConfirmation.isConfirmed) return false
