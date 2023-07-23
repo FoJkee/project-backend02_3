@@ -2,7 +2,7 @@ import nodemailer from "nodemailer";
 
 export const emailAdapters = {
 
-    async sendEmail(email: string, code: string) {
+    async sendEmail(code: string) {
 
         const transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -14,7 +14,7 @@ export const emailAdapters = {
         // send mail with defined transport object
         const info = await transporter.sendMail({
             from: 'romanovsky0815@gmail.com', // sender address
-            to: email, // list of receivers
+            to: 'romanovsky0815@gmail.com', // list of receivers
             subject: "Registration", // Subject line
             text: "Registration", // plain text body
             html:  ' <h1>Thank for your registration</h1>\n' +

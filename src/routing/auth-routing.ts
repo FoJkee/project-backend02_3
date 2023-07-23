@@ -1,5 +1,4 @@
 import {Response, Router, Request} from "express";
-import {authService} from "../domen/auth-service";
 import {jwtService} from "../application/jwt-service";
 import {authPassMiddleware} from "../middleware /authpass-middleware";
 import {errorsMiddleware} from "../middleware /errors-middleware";
@@ -45,7 +44,7 @@ authRouter.post('/registration-email-resending', emailResending, errorsMiddlewar
     if (result) {
        return res.sendStatus(400)
     } else {
-        const registrationUser = await userService.createNewEmailConfirmation(req.body.email)
+        const registrationUser = await userService.createNewEmailConfirmation()
        return  res.sendStatus(204).json(registrationUser)
     }
 })
