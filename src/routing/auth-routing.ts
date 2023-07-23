@@ -14,6 +14,7 @@ export const authRouter = Router({})
 
 authRouter.post('/registration-confirmation', emailConfirmation, errorsMiddleware, async (req: Request, res: Response) => {
     const result = await userService.confirmCode(req.body.code)
+
     if(result){
        return  res.sendStatus(400)
     } else {
@@ -31,12 +32,13 @@ authRouter.post('/registration', userMiddleware, errorsMiddleware, async (req: R
 
 authRouter.post('/registration-email-resending', emailResending, errorsMiddleware, async (req: Request, res: Response) => {
 
-    const result = await userService.confirmEmail(req.body.email)
+     const result = await userService.confirmEmail(req.body.email)
+
 
     if (result) {
         return res.sendStatus(400)
     } else {
-        const registrationUser = await userService.createNewEmailConfirmation()
+        const registrationUser = await userService.createNewEmailConfirmation(req.body.email)
         return res.sendStatus(204)
     }
 

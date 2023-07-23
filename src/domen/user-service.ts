@@ -67,7 +67,7 @@ export const userService = {
 
     },
 
-    async createNewEmailConfirmation() {
+    async createNewEmailConfirmation(email: string) {
         const code = uuidv4()
         const newEmail = {
             emailConfirmation: {
@@ -78,6 +78,7 @@ export const userService = {
                 }),
             }
         }
+        await emailAdapters.sendEmail(email, code)
         return newEmail
     },
 
@@ -100,6 +101,7 @@ export const userService = {
     },
 
     async confirmCode(code: string) {
+
         const user = await this._findUserByCode(code)
 
         const result = await userRepository.updateConfirmation(user!._id)
