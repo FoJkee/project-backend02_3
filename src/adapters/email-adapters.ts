@@ -7,7 +7,7 @@ export const emailAdapters = {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: 'romanovsky0815@gmail.com',
+                user: email,
                 pass: 'sihdiiqmwudehwza'
             }
         });
