@@ -11,7 +11,6 @@ export const errorsMiddleware = async (req: Request, res: Response, next: NextFu
 
     }
     const resultErr = validationResult(req).formatWith(errMes)
-
     if (!resultErr.isEmpty()) {
         res.status(400).json({errorsMessages: resultErr.array({onlyFirstError: true})})
     } else {
