@@ -79,10 +79,11 @@ export const userService = {
             }
         }
         try {
+            await this._findUserByCode(code)
             await emailAdapters.sendEmail(email, code)
         } catch (e) {
             console.error(e)
-            await this.confirmCode(code)
+
             return null
         }
         return newEmail
@@ -107,13 +108,13 @@ export const userService = {
     },
 
     async confirmCode(code: string) {
-        // const user = await this._findUserByCode(code)
-        const user = await userRepository.findUserByConfirmationCode(code)
-        if (!user) return null
-        if (user.emailConfirmation.isConfirmed) return null
-        if (user.emailConfirmation.expirationDate < new Date()) return null
+        const user = await this._findUserByCode(code)
+        // const user = await userRepository.findUserByConfirmationCode(code)
+        // if (!user) return null
+        // if (user.emailConfirmation.isConfirmed) return null
+        // if (user.emailConfirmation.expirationDate < new Date()) return null
 
-        const result = await userRepository.updateConfirmation(user!._id)
+        const result = await userRepository.updateConfirmation(new ObjectId())
         return result
 
     },
@@ -129,13 +130,13 @@ export const userService = {
     },
 
 
-    // async _findUserByCode(code: string): Promise<UserType_Id | null> {
-    //     const user = await userRepository.findUserByConfirmationCode(code)
-    //     if (!user) return null
-    //     if (user.emailConfirmation.isConfirmed) return null
-    //     if (user.emailConfirmation.expirationDate < new Date()) return null
-    //     return user
-    // }
+    async _findUserByCode(code: string): Promise<UserType_Id | null> {
+        const user = await userRepository.findUserByConfirmationCode(code)
+        if (!user) return null
+        if (user.emailConfirmation.isConfirmed) return null
+        if (user.emailConfirmation.expirationDate < new Date()) return null
+        return user
+    }
 
 
 }
