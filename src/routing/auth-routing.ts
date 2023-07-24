@@ -14,9 +14,11 @@ export const authRouter = Router({})
 
 authRouter.post('/registration-confirmation', confirmationCodeAllReadyConfirmed, errorsMiddleware,
     async (req: Request, res: Response) => {
+
         const result = await userService.confirmCode(req.body.code)
 
         if (result) {
+            console.log('result', result)
             return res.sendStatus(204)
         } else {
             return res.sendStatus(400)
@@ -31,7 +33,7 @@ authRouter.post('/registration', userMiddleware, errorsMiddleware, async (req: R
 })
 
 
-authRouter.post('/registration-email-resending', emailResending, errorsMiddleware, async (req: Request, res: Response) => {
+authRouter.post('/registration-email-resending', emailResending,errorsMiddleware, async (req: Request, res: Response) => {
 
     const result = await userService.confirmEmail(req.body.email)
 
@@ -39,10 +41,12 @@ authRouter.post('/registration-email-resending', emailResending, errorsMiddlewar
         const registrationUser = await userService.createNewEmailConfirmation(req.body.email)
         return res.sendStatus(204)
     } else {
-        return res.sendStatus(400)
+        return res.status(400).json({ errorsMessages: [{ message: 'Incorrect email', field: "email" }] })
 
     }
 })
+
+
 
 
 authRouter.post('/login', authPassMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
