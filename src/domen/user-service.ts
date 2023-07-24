@@ -106,8 +106,6 @@ export const userService = {
             field: 'code'
         })
 
-
-
         if (user.emailConfirmation.isConfirmed) return err.push({
             message: 'Code',
             field: 'code'
