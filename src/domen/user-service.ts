@@ -98,22 +98,11 @@ export const userService = {
     },
 
     async confirmCode(code: string) {
-        const err = []
 
         const user = await userRepository.findUserByConfirmationCode(code)
-        if (!user) return err.push({
-            message: 'Code',
-            field: 'code'
-        })
-
-        if (user.emailConfirmation.isConfirmed) return err.push({
-            message: 'Code',
-            field: 'code'
-        })
-        if (user.emailConfirmation.expirationDate < new Date()) return err.push({
-            message: 'Code',
-            field: 'code'
-        })
+        if (!user) return null
+        if (user.emailConfirmation.isConfirmed) return null
+        if (user.emailConfirmation.expirationDate < new Date()) return null
 
         const result = await userRepository.updateConfirmation(user._id)
 
@@ -122,17 +111,10 @@ export const userService = {
     },
 
     async confirmEmail(email: string) {
-        const err = []
-        const user = await userRepository.findLoginOrEmail(email)
-        if (!user) return err.push({
-            message: 'Email',
-            field: 'email'
-        })
 
-        if (user.emailConfirmation.isConfirmed) return err.push({
-            message: 'Email',
-            field: 'email'
-        })
+        const user = await userRepository.findLoginOrEmail(email)
+        if (!user) return null
+        if (user.emailConfirmation.isConfirmed) return null
 
         return user
 
