@@ -6,8 +6,6 @@ import bcrypt from "bcrypt";
 import {v4 as uuidv4} from "uuid";
 import add from "date-fns/add";
 import {emailAdapters} from "../adapters/email-adapters";
-import {userCollection} from "../db";
-import {id, tr} from "date-fns/locale";
 
 
 export const userService = {
@@ -100,25 +98,45 @@ export const userService = {
     },
 
     async confirmCode(code: string) {
+        const err = []
 
         const user = await userRepository.findUserByConfirmationCode(code)
-        if (!user) return false
-        if (user.emailConfirmation.isConfirmed) return false
-        if (user.emailConfirmation.expirationDate < new Date()) return false
+        if (!user) return err.push({
+            message: 'Code',
+            field: 'code'
+        })
 
-        const result = await userRepository.updateConfirmation(user!._id)
+        if (user.emailConfirmation.isConfirmed) return err.push({
+            message: 'Code',
+            field: 'code'
+        })
+        if (user.emailConfirmation.expirationDate < new Date()) return err.push({
+            message: 'Code',
+            field: 'code'
+        })
+
+        const result = await userRepository.updateConfirmation(user._id)
 
         return user
 
     },
 
     async confirmEmail(email: string) {
-
+        const err = []
         const user = await userRepository.findLoginOrEmail(email)
-        if (!user) return false
-        if (user.emailConfirmation.isConfirmed) return false
+        if (!user) return err.push({
+            message: 'Email',
+            field: 'email'
+        })
+
+        if (user.emailConfirmation.isConfirmed) return err.push({
+            message: 'Email',
+            field: 'email'
+        })
 
         return user
+
+
     }
 
 }
