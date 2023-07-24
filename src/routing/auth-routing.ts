@@ -38,7 +38,7 @@ authRouter.post('/registration-email-resending', emailResending, errorsMiddlewar
 
     if (result) {
         const registrationUser = await userService.createNewEmailConfirmation(req.body.email)
-        return res.sendStatus(204).json(registrationUser)
+        return res.sendStatus(204)
     } else {
         return res.sendStatus(400)
 
