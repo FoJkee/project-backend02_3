@@ -7,12 +7,12 @@ import {userRepository} from "../repository/user-repository";
 import {authBearerMiddleware} from "../middleware /authbearer-middleware";
 import {userService} from "../domen/user-service";
 import {userMiddleware} from "../middleware /user-middleware";
-import {emailConfirmation, emailResending} from "../middleware /email-middleware";
+import {confirmationCodeAllReadyConfirmed, emailResending} from "../middleware /email-middleware";
 
 
 export const authRouter = Router({})
 
-authRouter.post('/registration-confirmation', emailConfirmation, errorsMiddleware,
+authRouter.post('/registration-confirmation', confirmationCodeAllReadyConfirmed, errorsMiddleware,
     async (req: Request, res: Response) => {
 
     const result = await userService.confirmCode(req.body.code)
@@ -34,9 +34,9 @@ authRouter.post('/registration', userMiddleware, errorsMiddleware, async (req: R
 
 authRouter.post('/registration-email-resending', emailResending, errorsMiddleware, async (req: Request, res: Response) => {
 
-     const result = await userService.confirmEmail(req.body.code)
+     const result = await userService.confirmEmail(req.body.email)
 
-    if (result) {
+    if (!result) {
         return res.sendStatus(400)
     } else {
         const registrationUser = await userService.createNewEmailConfirmation(req.body.email)

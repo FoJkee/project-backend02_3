@@ -6,7 +6,6 @@ import bcrypt from "bcrypt";
 import {v4 as uuidv4} from "uuid";
 import add from "date-fns/add";
 import {emailAdapters} from "../adapters/email-adapters";
-import {emailConfirmation, emailResending} from "../middleware /email-middleware";
 import {userCollection} from "../db";
 import {id, tr} from "date-fns/locale";
 
@@ -102,14 +101,14 @@ export const userService = {
 
     async confirmCode(code: string) {
 
-        // const user = await this._findUserByCode(code)
         const user = await userRepository.findUserByConfirmationCode(code)
         if (!user) return null
         if (user.emailConfirmation.isConfirmed) return null
         if (user.emailConfirmation.expirationDate < new Date()) return null
 
         const result = await userRepository.updateConfirmation(user!._id)
-        return result
+
+        return user
 
     },
 
@@ -118,21 +117,9 @@ export const userService = {
         const user = await userRepository.findLoginOrEmail(email)
         if (!user) return false
         if (user.emailConfirmation.isConfirmed) return false
-        if (user.emailConfirmation.expirationDate < new Date()) return false
-
-        return user
-    },
-
-
-    async _findUserByCode(code: string): Promise<UserType_Id | null> {
-
-        const user = await userRepository.findUserByConfirmationCode(code)
-        if (!user) return null
-        if (user.emailConfirmation.isConfirmed) return null
-        if (user.emailConfirmation.expirationDate < new Date()) return null
+        // if (user.emailConfirmation.expirationDate < new Date()) return false
 
         return user
     }
-
 
 }
