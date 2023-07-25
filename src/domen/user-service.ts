@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 import {v4 as uuidv4} from "uuid";
 import add from "date-fns/add";
 import {emailAdapters} from "../adapters/email-adapters";
-import {userCollection} from "../db";
+import {tokenCollection, userCollection} from "../db";
 import {randomUUID} from "crypto";
 import {jwtService} from "../application/jwt-service";
 
@@ -54,7 +54,8 @@ export const userService = {
                     hours: 1,
                     minutes: 3
                 }),
-                isConfirmed: false
+                isConfirmed: false,
+
             }
         }
         const createResult = await userRepository.createUser(userNew)
@@ -81,7 +82,7 @@ export const userService = {
                 hours: 1,
                 minutes: 3
             }),
-            isConfirmed: false
+            isConfirmed: false,
 
         }
         await userCollection.updateOne({email}, {$set: {emailConfirmation: newEmailConfirmation}})
@@ -121,12 +122,15 @@ export const userService = {
 
     },
 
-    async logoutUser(refreshToken: string) {
-        const token = await jwtService.removeToken(refreshToken)
+    async logoutUser(id:string,  refreshToken: string) {
+        const token = await jwtService.removeToken(id, refreshToken)
         return token
 
+    },
 
-    }
+
+
+
 
     // async confirmEmail(email: string) {
     //

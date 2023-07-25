@@ -46,8 +46,6 @@ authRouter.post('/registration-email-resending', errorsMiddleware, async (req: R
 authRouter.post('/refresh-token', async (req: Request, res: Response) => {
 
 
-
-
 })
 
 authRouter.post('/login', authPassMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
@@ -58,19 +56,23 @@ authRouter.post('/login', authPassMiddleware, errorsMiddleware, async (req: Requ
         res.cookie('refreshToken', token.refreshToken, {httpOnly: true, secure: true})
         res.status(200).json(token)
     } else {
-        res.sendStatus(401)
+        res.status(400)
     }
 })
 
 
 authRouter.post('/logout', errorsMiddleware, async (req: Request, res: Response) => {
 
-    const {refreshToken} = req.cookies
-    const token = await userService.logoutUser(refreshToken)
-    res.clearCookie('refreshToken')
-    return res.sendStatus(204)
+    const loginUser = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
+    if (loginUser) {
+        const token = await userService.logoutUser(req.params.id, req.cookies.refreshToken)
+        res.clearCookie('refreshToken')
+        return res.sendStatus(204)
+    } else {
+        return res.sendStatus(401)
+    }
 
-    if (!token) return res.sendStatus(401)
+
 })
 
 
