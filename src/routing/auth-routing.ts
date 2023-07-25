@@ -1,5 +1,4 @@
-import {Response, Router, Request} from "express";
-import {authService} from "../domen/auth-service";
+import {Request, Response, Router} from "express";
 import {jwtService} from "../application/jwt-service";
 import {authPassMiddleware} from "../middleware /authpass-middleware";
 import {errorsMiddleware} from "../middleware /errors-middleware";
@@ -7,21 +6,24 @@ import {userRepository} from "../repository/user-repository";
 import {authBearerMiddleware} from "../middleware /authbearer-middleware";
 import {userService} from "../domen/user-service";
 import {userMiddleware} from "../middleware /user-middleware";
-import {confirmationCodeAllReadyConfirmed, emailResending} from "../middleware /email-middleware";
+import {emailResending} from "../middleware /email-middleware";
 
-
+const errorFunc = (...args: string[]) => {
+    return {
+        errorsMessages: args.map(a => ({message: `error at ${a}`, field: a}))
+    }
+}
 export const authRouter = Router({})
 
-authRouter.post('/registration-confirmation', confirmationCodeAllReadyConfirmed, errorsMiddleware,
+authRouter.post('/registration-confirmation', errorsMiddleware,
     async (req: Request, res: Response) => {
 
         const result = await userService.confirmCode(req.body.code)
 
         if (result) {
-            console.log('result', result)
             return res.sendStatus(204)
         } else {
-            return res.sendStatus(400)
+            return res.status(400).send(errorFunc('code'))
         }
 
     })
@@ -33,20 +35,15 @@ authRouter.post('/registration', userMiddleware, errorsMiddleware, async (req: R
 })
 
 
-authRouter.post('/registration-email-resending', emailResending,errorsMiddleware, async (req: Request, res: Response) => {
+authRouter.post('/registration-email-resending', errorsMiddleware, async (req: Request, res: Response) => {
 
-    const result = await userService.confirmEmail(req.body.email)
 
-    if (result) {
-        const registrationUser = await userService.createNewEmailConfirmation(req.body.email)
-        return res.sendStatus(204)
-    } else {
-        return res.status(400).json({ errorsMessages: [{ message: 'Incorrect email', field: "email" }] })
+    const resendEmail = await userService.createNewEmailConfirmation(req.body.email)
+    if (!resendEmail) return res.status(400).json(errorFunc('email'))
+    return res.sendStatus(204)
 
-    }
+
 })
-
-
 
 
 authRouter.post('/login', authPassMiddleware, errorsMiddleware, async (req: Request, res: Response) => {

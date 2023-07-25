@@ -8,13 +8,7 @@ export const emailResending = body('email').exists()
     .custom(async val => {
         const user = await userCollection.findOne({email: val})
         if (!user) throw new Error('Incorrect email')
+        return true
     })
 
 
-export const confirmationCodeAllReadyConfirmed = body('code').exists().isString()
-    .withMessage('Incorrect code')
-    .custom(async val => {
-        const user = await userCollection.findOne({code: val})
-        if (!user) throw new Error('Incorrect code')
-        if (user.emailConfirmation.isConfirmed) throw new Error('Incorrect code')
-    })

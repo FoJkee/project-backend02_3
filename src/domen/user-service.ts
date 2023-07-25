@@ -6,6 +6,8 @@ import bcrypt from "bcrypt";
 import {v4 as uuidv4} from "uuid";
 import add from "date-fns/add";
 import {emailAdapters} from "../adapters/email-adapters";
+import {userCollection} from "../db";
+import {randomUUID} from "crypto";
 
 
 export const userService = {
@@ -65,18 +67,22 @@ export const userService = {
     },
 
     async createNewEmailConfirmation(email: string) {
-        const code = uuidv4()
-        const newEmail = {
-            emailConfirmation: {
-                confirmationCode: code,
-                expirationDate: add(new Date(), {
-                    hours: 1,
-                    minutes: 3
-                }),
-            }
+        const user = await userCollection.findOne({email, 'emailConfirmation.isConfirmed': false})
+        if (!user) return null
+        const code: string = randomUUID()
+        const newEmailConfirmation = {
+
+            confirmationCode: code,
+            expirationDate: add(new Date(), {
+                hours: 1,
+                minutes: 3
+            }),
+            isConfirmed: false
+
         }
+        await userCollection.updateOne({email}, {$set: {emailConfirmation: newEmailConfirmation}})
         await emailAdapters.sendEmail(email, code)
-        return newEmail
+        return true
     },
 
     async getUserId(id: string): Promise<UserTypeId | null> {
@@ -105,7 +111,7 @@ export const userService = {
         if (user.emailConfirmation.isConfirmed) return null
         if (user.emailConfirmation.expirationDate < new Date()) return null
 
-        const result = await userRepository.updateConfirmation(user!._id)
+        const result = await userRepository.updateConfirmation(user._id)
 
         return user
 
