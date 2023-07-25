@@ -6,7 +6,6 @@ import {userRepository} from "../repository/user-repository";
 import {authBearerMiddleware} from "../middleware /authbearer-middleware";
 import {userService} from "../domen/user-service";
 import {userMiddleware} from "../middleware /user-middleware";
-import {emailResending} from "../middleware /email-middleware";
 
 const errorFunc = (...args: string[]) => {
     return {
@@ -42,21 +41,38 @@ authRouter.post('/registration-email-resending', errorsMiddleware, async (req: R
     if (!resendEmail) return res.status(400).json(errorFunc('email'))
     return res.sendStatus(204)
 
-
 })
 
+authRouter.post('/refresh-token', async (req: Request, res: Response) => {
+
+
+
+
+})
 
 authRouter.post('/login', authPassMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
 
     const loginUser = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
     if (loginUser) {
         const token = await jwtService.createJwt(loginUser)
-        res.status(200).json({accessToken: token})
-
+        res.cookie('refreshToken', token.refreshToken, {httpOnly: true, secure: true})
+        res.status(200).json(token)
     } else {
         res.sendStatus(401)
     }
 })
+
+
+authRouter.post('/logout', errorsMiddleware, async (req: Request, res: Response) => {
+
+    const {refreshToken} = req.cookies
+    const token = await userService.logoutUser(refreshToken)
+    res.clearCookie('refreshToken')
+    return res.sendStatus(204)
+
+    if (!token) return res.sendStatus(401)
+})
+
 
 authRouter.get('/me', authBearerMiddleware, async (req: Request, res: Response) => {
 

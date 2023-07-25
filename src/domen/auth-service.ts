@@ -2,7 +2,6 @@ import {ObjectId} from "mongodb";
 import {v4 as uuidv4} from "uuid";
 import bcrypt from "bcrypt";
 import add from "date-fns/add"
-import {jwtSecret} from "../db";
 import jwt from "jsonwebtoken";
 import {emailAdapters} from "../adapters/email-adapters";
 import e from "express";

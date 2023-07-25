@@ -8,6 +8,7 @@ import add from "date-fns/add";
 import {emailAdapters} from "../adapters/email-adapters";
 import {userCollection} from "../db";
 import {randomUUID} from "crypto";
+import {jwtService} from "../application/jwt-service";
 
 
 export const userService = {
@@ -29,6 +30,9 @@ export const userService = {
         if (user.passwordHash !== passwordHash) {
             return false
         }
+
+        const tokens = await jwtService.createJwt(user)
+
         return user
     },
 
@@ -117,15 +121,22 @@ export const userService = {
 
     },
 
-    async confirmEmail(email: string) {
-
-        const user = await userRepository.findLoginOrEmail(email)
-        if (!user) return null
-        if (user.emailConfirmation.isConfirmed) return null
-
-        return user
+    async logoutUser(refreshToken: string) {
+        const token = await jwtService.removeToken(refreshToken)
+        return token
 
 
     }
+
+    // async confirmEmail(email: string) {
+    //
+    //     const user = await userRepository.findLoginOrEmail(email)
+    //     if (!user) return null
+    //     if (user.emailConfirmation.isConfirmed) return null
+    //
+    //     return user
+    //
+    //
+    // }
 
 }

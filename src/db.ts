@@ -10,7 +10,10 @@ dotenv.config()
 
 const mongoUrl = process.env.Mongo_Url || "mongodb://127.0.0.1:27017"
 
-export const jwtSecret = process.env.JWT_SECRET || '123'
+export const jwtAccess = process.env.JWT_ACCESS_SECRET || '123'
+
+export const jwtRefresh = process.env.JWT_REFRESH_SECRET || '123'
+
 
 
 console.log(mongoUrl)
