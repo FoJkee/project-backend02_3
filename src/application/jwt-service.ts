@@ -1,20 +1,20 @@
 import jwt from 'jsonwebtoken'
-import {UserType_Id} from "../types/user-type";
+import {UserType_Id, UserTypeId} from "../types/user-type";
 import {ObjectId} from "mongodb";
 import {jwtAccess, jwtRefresh, tokenCollection, userCollection} from "../db";
-import {tr} from "date-fns/locale";
 
 
 export const jwtService = {
 
-    async createJwt(user: UserType_Id) {
+    async createJwt(id: ObjectId) {
 
-        const accessToken = jwt.sign({user: user._id}, jwtAccess, {expiresIn: '10s'})
-        const refreshToken = jwt.sign({user: user._id}, jwtRefresh, {expiresIn: '20s'})
+        const accessToken: string = jwt.sign({user: id}, jwtAccess, {expiresIn: "10sec"})
+        const refreshToken: string = jwt.sign({user: id}, jwtRefresh, {expiresIn: "20sec"})
 
         return {
             accessToken, refreshToken
         }
+
     },
 
     // async saveToken(user: UserType_Id, refreshToken: string){
@@ -37,12 +37,25 @@ export const jwtService = {
         }
     },
 
+    async getUserByRefreshToken(token: string) {
 
-    async removeToken(id: string ,refreshToken: string){
+        try {
+            const result: any = jwt.verify(token, jwtRefresh)
+            return new ObjectId(result.user)
+        } catch (error) {
+            return null
+        }
+    },
+
+
+
+
+
+    async removeToken(id: string, refreshToken: string) {
         const token = await userCollection.findOne({_id: new ObjectId(id)})
-        if(token){
+        if (token) {
             const tokenData = await userCollection.deleteOne({refreshToken})
-           return tokenData
+            return tokenData
         }
         return true
     }

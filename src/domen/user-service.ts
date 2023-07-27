@@ -31,8 +31,6 @@ export const userService = {
             return false
         }
 
-        const tokens = await jwtService.createJwt(user)
-
         return user
     },
 
@@ -90,7 +88,7 @@ export const userService = {
         return true
     },
 
-    async getUserId(id: string): Promise<UserTypeId | null> {
+    async getUserId(id: ObjectId): Promise<UserTypeId | null> {
         return userRepository.getUserId(id)
 
     },
@@ -127,6 +125,16 @@ export const userService = {
         return token
 
     },
+
+    async refreshToken(id: ObjectId){
+        const user = await this.getUserId(id)
+        if(!user) throw new Error('Unauthorized')
+        console.log(user.id)
+        // const token = await jwtService.createJwt(user.id);
+
+
+
+    }
 
 
 

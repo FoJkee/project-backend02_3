@@ -6,6 +6,10 @@ import {userRepository} from "../repository/user-repository";
 import {authBearerMiddleware} from "../middleware /authbearer-middleware";
 import {userService} from "../domen/user-service";
 import {userMiddleware} from "../middleware /user-middleware";
+import {id} from "date-fns/locale";
+import {ObjectId} from "mongodb";
+import {jwtRefresh, tokenCollection} from "../db";
+import jwt from "jsonwebtoken";
 
 const errorFunc = (...args: string[]) => {
     return {
@@ -45,23 +49,36 @@ authRouter.post('/registration-email-resending', errorsMiddleware, async (req: R
 
 authRouter.post('/refresh-token', async (req: Request, res: Response) => {
 
+    const tokenVerify = await jwtService.getUserByRefreshToken(req.cookies.token)
 
+    if (tokenVerify) {
+        const token = await jwtService.createJwt(new ObjectId(tokenVerify));
+        res.cookie('refreshToken', token.refreshToken, {httpOnly: true, secure: true})
+        res.status(200).json({accessToken: token.accessToken})
+    } else {
+        res.sendStatus(401)
+    }
 })
 
 authRouter.post('/login', authPassMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
 
     const loginUser = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
     if (loginUser) {
-        const token = await jwtService.createJwt(loginUser)
+        const token = await jwtService.createJwt(loginUser._id)
         res.cookie('refreshToken', token.refreshToken, {httpOnly: true, secure: true})
-        res.status(200).json(token)
+        res.status(200).json({accessToken: token.accessToken})
     } else {
-        res.status(400)
+        res.sendStatus(400)
     }
 })
 
 
 authRouter.post('/logout', errorsMiddleware, async (req: Request, res: Response) => {
+//refreshToken<- verify:
+    //if ok -> userId -> does user exist(get user by id)
+
+    const tokenVerify = await jwtService.getUserByRefreshToken(req.cookies.token)
+    const user = await userService.getUserId(new ObjectId(req.params.id))
 
     const loginUser = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
     if (loginUser) {
@@ -71,7 +88,6 @@ authRouter.post('/logout', errorsMiddleware, async (req: Request, res: Response)
     } else {
         return res.sendStatus(401)
     }
-
 
 })
 

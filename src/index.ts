@@ -29,7 +29,7 @@ app.use('/comments', commentRouter)
 
 
 app.get('/', (req: Request, res: Response) => {
-    res.send('Hello World!')
+    res.send('Hello!')
 })
 
 

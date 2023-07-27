@@ -62,7 +62,7 @@ export const userRepository = {
         }
     },
 
-    async getUserId(id: string): Promise<UserTypeId | null> {
+    async getUserId(id: ObjectId): Promise<UserTypeId | null> {
 
         const getUser = await userCollection.findOne({_id: new ObjectId(id)})
 
