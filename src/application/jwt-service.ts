@@ -1,5 +1,4 @@
 import jwt from 'jsonwebtoken'
-import {UserType_Id, UserTypeId} from "../types/user-type";
 import {ObjectId} from "mongodb";
 import {jwtAccess, jwtRefresh, tokenCollection, userCollection} from "../db";
 
@@ -46,9 +45,6 @@ export const jwtService = {
             return null
         }
     },
-
-
-
 
 
     async removeToken(id: string, refreshToken: string) {
