@@ -87,19 +87,30 @@ authRouter.post('/login', authPassMiddleware, errorsMiddleware, async (req: Requ
 
 
 authRouter.post('/logout', errorsMiddleware, async (req: Request, res: Response) => {
+
     const token = req.cookies.refreshToken
 
-    const tokenVerify = await jwtService.getUserByRefreshToken(token)
-
-    const user = await userService.getUserId(new ObjectId(req.params.id))
-
-    if (user) {
-        const token = await userService.logoutUser(req.params.id, req.cookies.refreshToken)
-        res.clearCookie('refreshToken')
-        return res.sendStatus(204)
-    } else {
-        return res.sendStatus(401)
+    if (!token) {
+        res.sendStatus(401)
+        return
     }
+
+    const userToken = await jwtService.getUserByRefreshToken(token)
+    if (!userToken) {
+        res.sendStatus(401)
+        return
+    }
+
+    const userId = await userService.getUserId(userToken)
+
+    if (!userId) {
+        res.sendStatus(401)
+        return
+    }
+
+        res.clearCookie('refreshToken')
+        res.sendStatus(204)
+
 
 })
 
