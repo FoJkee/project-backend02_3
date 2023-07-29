@@ -41,7 +41,7 @@ export const jwtService = {
     async getUserByRefreshToken(token: string) {
 
         try {
-            const result: any = jwt.verify(token, jwtRefresh, {maxAge: "20s"})
+            const result: any = jwt.verify(token, jwtRefresh)
 
             return new ObjectId(result.user)
         } catch (error) {
