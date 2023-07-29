@@ -49,26 +49,28 @@ authRouter.post('/registration-email-resending', errorsMiddleware, async (req: R
 
 authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     const token = req.cookies.refreshToken
-    if(!token) {
-        res.sendStatus(401)
-        return
-    }
-    const tokenVerify = await jwtService.getUserByRefreshToken(token)
-
-    if (tokenVerify) {
+    if (!token) {
         res.sendStatus(401)
         return
     }
 
-    const userToken = await userService.getUserId(new ObjectId(req.params.id))
-
-    if(userToken) {
-        const newToken = await jwtService.createJwt(new ObjectId(userToken.id))
-        res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
-         res.status(200).json({accessToken: newToken.accessToken})
-    } else {
+    const userToken = await jwtService.getUserByRefreshToken(token)
+    if (!userToken) {
         res.sendStatus(401)
+        return
     }
+
+    const userId = await userService.getUserId(userToken)
+
+    if (!userId) {
+        res.sendStatus(401)
+        return
+    }
+
+    const newToken = await jwtService.createJwt(new ObjectId(userId.id))
+    res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
+    res.status(200).json({accessToken: newToken.accessToken})
+
 })
 
 authRouter.post('/login', authPassMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
