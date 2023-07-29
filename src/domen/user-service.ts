@@ -66,7 +66,6 @@ export const userService = {
             return null
         }
         return createResult
-
     },
 
     async createNewEmailConfirmation(email: string) {
@@ -120,21 +119,21 @@ export const userService = {
 
     },
 
-    async logoutUser(id:string,  refreshToken: string) {
-        const token = await jwtService.removeToken(id, refreshToken)
-        return token
+    // async logoutUser(id:string,  refreshToken: string) {
+    //     const token = await jwtService.removeToken(id, refreshToken)
+    //     return token
+    //
+    // },
 
-    },
-
-    async refreshToken(id: ObjectId){
-        const user = await this.getUserId(id)
-        if(!user) throw new Error('Unauthorized')
-        console.log(user.id)
-        // const token = await jwtService.createJwt(user.id);
-
-
-
-    }
+    // async refreshToken(id: ObjectId){
+    //     const user = await this.getUserId(id)
+    //     if(!user) throw new Error('Unauthorized')
+    //     console.log(user.id)
+    //     // const token = await jwtService.createJwt(user.id);
+    //
+    //
+    //
+    // }
 
 
 

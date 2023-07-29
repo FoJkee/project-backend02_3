@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
 import {ObjectId} from "mongodb";
 import {jwtAccess, jwtRefresh, tokenCollection, userCollection} from "../db";
+import {randomUUID} from "crypto";
 
 
 export const jwtService = {
@@ -8,7 +9,8 @@ export const jwtService = {
     async createJwt(id: ObjectId) {
 
         const accessToken: string = jwt.sign({user: id}, jwtAccess, {expiresIn: "10sec"})
-        const refreshToken: string = jwt.sign({user: id}, jwtRefresh, {expiresIn: "20sec"})
+
+        const refreshToken: string = jwt.sign({user: id}, jwtRefresh, {expiresIn: "20sec"} )
 
         return {
             accessToken, refreshToken
@@ -39,7 +41,8 @@ export const jwtService = {
     async getUserByRefreshToken(token: string) {
 
         try {
-            const result: any = jwt.verify(token, jwtRefresh)
+            const result: any = jwt.verify(token, jwtRefresh, {maxAge: "20s"})
+
             return new ObjectId(result.user)
         } catch (error) {
             return null
@@ -47,13 +50,13 @@ export const jwtService = {
     },
 
 
-    async removeToken(id: string, refreshToken: string) {
-        const token = await userCollection.findOne({_id: new ObjectId(id)})
-        if (token) {
-            const tokenData = await userCollection.deleteOne({refreshToken})
-            return tokenData
-        }
-        return true
-    }
+    // async removeToken(id: string, refreshToken: string) {
+    //     const token = await userCollection.findOne({_id: new ObjectId(id)})
+    //     if (token) {
+    //         const tokenData = await userCollection.deleteOne({refreshToken})
+    //         return tokenData
+    //     }
+    //     return true
+    // }
 
 }
