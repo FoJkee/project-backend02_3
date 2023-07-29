@@ -48,13 +48,17 @@ authRouter.post('/registration-email-resending', errorsMiddleware, async (req: R
 })
 
 authRouter.post('/refresh-token', async (req: Request, res: Response) => {
-
-    const tokenVerify = await jwtService.getUserByRefreshToken(req.cookies.token)
+    const token = req.cookies.refreshToken
+    if(!token) {
+        res.sendStatus(401)
+        return
+    }
+    const tokenVerify = await jwtService.getUserByRefreshToken(token)
 
     if (tokenVerify) {
         const token = await jwtService.createJwt(new ObjectId(tokenVerify));
         res.cookie('refreshToken', token.refreshToken, {httpOnly: true, secure: true})
-        res.status(200).json({accessToken: token.accessToken})
+       res.status(200).json({accessToken: token.accessToken})
     } else {
         res.sendStatus(401)
     }
@@ -68,20 +72,17 @@ authRouter.post('/login', authPassMiddleware, errorsMiddleware, async (req: Requ
         res.cookie('refreshToken', token.refreshToken, {httpOnly: true, secure: true})
         res.status(200).json({accessToken: token.accessToken})
     } else {
-        res.sendStatus(400)
+        res.sendStatus(401)
     }
 })
 
 
 authRouter.post('/logout', errorsMiddleware, async (req: Request, res: Response) => {
-//refreshToken<- verify:
-    //if ok -> userId -> does user exist(get user by id)
 
     const tokenVerify = await jwtService.getUserByRefreshToken(req.cookies.token)
     const user = await userService.getUserId(new ObjectId(req.params.id))
 
-    const loginUser = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
-    if (loginUser) {
+    if (user) {
         const token = await userService.logoutUser(req.params.id, req.cookies.refreshToken)
         res.clearCookie('refreshToken')
         return res.sendStatus(204)
