@@ -6,10 +6,8 @@ import {userRepository} from "../repository/user-repository";
 import {authBearerMiddleware} from "../middleware /authbearer-middleware";
 import {userService} from "../domen/user-service";
 import {userMiddleware} from "../middleware /user-middleware";
-import {id} from "date-fns/locale";
 import {ObjectId} from "mongodb";
-import {jwtRefresh, tokenCollection} from "../db";
-import jwt from "jsonwebtoken";
+
 
 const errorFunc = (...args: string[]) => {
     return {
@@ -62,16 +60,14 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
         res.sendStatus(401)
         return
     }
-    if (token) {
-        if (Date.now() >= token.expiresIn) {
-            const newToken = await jwtService.createJwt(new ObjectId(userId.id))
-            res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
-            res.status(200).json({accessToken: newToken.accessToken})
-        }
-    } else {
-        res.sendStatus(401)
-        return
-    }
+
+
+    //timeAge token??
+
+    const newToken = await jwtService.createJwt(new ObjectId(userId.id))
+    res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
+    return res.status(200).json({accessToken: newToken.accessToken})
+
 
 })
 
@@ -111,8 +107,7 @@ authRouter.post('/logout', errorsMiddleware, async (req: Request, res: Response)
     }
 
     res.clearCookie('refreshToken')
-    res.sendStatus(204)
-
+   return res.sendStatus(204)
 
 })
 
