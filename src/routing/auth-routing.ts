@@ -47,7 +47,7 @@ authRouter.post('/registration-email-resending', errorsMiddleware, async (req: R
 
 
 authRouter.post('/refresh-token', async (req: Request, res: Response) => {
-    const token = req.cookies.accessToken
+    const token = req.cookies.refreshToken
     if (!token) return res.sendStatus(401)
 
     const userToken = await jwtService.getUserByRefreshToken(token)
