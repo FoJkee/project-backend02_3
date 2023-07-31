@@ -9,6 +9,7 @@ import {emailAdapters} from "../adapters/email-adapters";
 import {tokenCollection, userCollection} from "../db";
 import {randomUUID} from "crypto";
 import {jwtService} from "../application/jwt-service";
+import {authRepository} from "../repository/auth-repository";
 
 
 export const userService = {
@@ -22,7 +23,7 @@ export const userService = {
     },
 
     async checkCredentials(loginOrEmail: string, password: string) {
-        const user = await userRepository.findLoginOrEmail(loginOrEmail)
+        const user = await userRepository. findLoginOrEmail(loginOrEmail)
         if (!user) return null
 
         const passwordHash = await this._generateHash(password, user.passwordSalt)
@@ -119,35 +120,14 @@ export const userService = {
 
     },
 
-    // async logoutUser(id:string,  refreshToken: string) {
-    //     const token = await jwtService.removeToken(id, refreshToken)
-    //     return token
+    // async confirmToken(token: string){
+    //     const newToken = await authRepository.timeToken(token)
     //
-    // },
-
-    // async refreshToken(id: ObjectId){
-    //     const user = await this.getUserId(id)
-    //     if(!user) throw new Error('Unauthorized')
-    //     console.log(user.id)
-    //     // const token = await jwtService.createJwt(user.id);
-    //
-    //
+    //     if(!newToken) return null
+    //     if(newToken.refreshToken < new Date()) return null
     //
     // }
 
 
-
-
-
-    // async confirmEmail(email: string) {
-    //
-    //     const user = await userRepository.findLoginOrEmail(email)
-    //     if (!user) return null
-    //     if (user.emailConfirmation.isConfirmed) return null
-    //
-    //     return user
-    //
-    //
-    // }
 
 }
