@@ -61,7 +61,7 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     if (!newToken) return res.sendStatus(401)
 
     res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
-    return res.status(401).json({accessToken: newToken.accessToken})
+    return res.status(200).json({accessToken: newToken.accessToken})
 
 
 })
