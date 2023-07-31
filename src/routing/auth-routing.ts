@@ -48,18 +48,25 @@ authRouter.post('/registration-email-resending', errorsMiddleware, async (req: R
 })
 
 
+authRouter.post('/refresh-token', async (req: Request, res: Response) => {
 
+    const token = req.cookies.refreshToken
+    if (!token) return res.sendStatus(401)
 
+    const userToken = await jwtService.getUserByRefreshToken(token)
+    if (!userToken) return res.sendStatus(401)
 
+    const isBlocked = await authRepository.checkRefreshToken(token)
+    if (!isBlocked) return res.sendStatus(401)
 
-authRouter.post('/refresh-token', verifyUserToken, async (req: Request, res: Response) => {
+    const userId = await userService.getUserId(userToken)
+    if (!userId) return res.sendStatus(401)
 
-    await authRepository.blockRefreshToken
-    const newToken = await jwtService.createJwt
+    await authRepository.blockRefreshToken(token)
+    const newToken = await jwtService.createJwt(new ObjectId(userId.id))
 
-    res.cookie('refreshToken', newToken, {httpOnly: true, secure: true})
-    return res.status(200).json({accessToken: newToken})
-
+    res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
+    return res.status(200).json({accessToken: newToken.accessToken})
 
 })
 
@@ -79,8 +86,7 @@ authRouter.post('/login', authPassMiddleware, errorsMiddleware, async (req: Requ
 authRouter.post('/logout', errorsMiddleware, async (req: Request, res: Response) => {
 
     const token = req.cookies.refreshToken
-    if (!token)  return res.sendStatus(401)
-
+    if (!token) return res.sendStatus(401)
 
     const userToken = await jwtService.getUserByRefreshToken(token)
     if (!userToken) return res.sendStatus(401)
@@ -92,9 +98,13 @@ authRouter.post('/logout', errorsMiddleware, async (req: Request, res: Response)
     const userId = await userService.getUserId(userToken)
     if (!userId) return res.sendStatus(401)
 
-
     await authRepository.blockRefreshToken(token)
-    return res.clearCookie('refreshToken').sendStatus(204)
+    const loginUser = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
+    if (loginUser) {
+        return res.clearCookie('refreshToken').sendStatus(204)
+    } else {
+        return res.sendStatus(401)
+    }
 
 })
 
