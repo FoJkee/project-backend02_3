@@ -6,10 +6,9 @@ import bcrypt from "bcrypt";
 import {v4 as uuidv4} from "uuid";
 import add from "date-fns/add";
 import {emailAdapters} from "../adapters/email-adapters";
-import {tokenCollection, userCollection} from "../db";
+import { userCollection} from "../db";
 import {randomUUID} from "crypto";
-import {jwtService} from "../application/jwt-service";
-import {authRepository} from "../repository/auth-repository";
+
 
 
 export const userService = {

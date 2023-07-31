@@ -8,6 +8,7 @@ import {userService} from "../domen/user-service";
 import {userMiddleware} from "../middleware /user-middleware";
 import {ObjectId} from "mongodb";
 import {jwtRefresh} from "../db";
+import {authRepository} from "../repository/auth-repository";
 
 
 const errorFunc = (...args: string[]) => {
@@ -53,12 +54,17 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     const userToken = await jwtService.getUserByRefreshToken(token)
     if (!userToken) return res.sendStatus(401)
 
+    const isBlocked = await authRepository.checkRefreshToken(token)
+    if (!isBlocked) return res.sendStatus(401)
+
     const userId = await userService.getUserId(userToken)
     if (!userId) return res.sendStatus(401)
 
 
     const newToken = await jwtService.createJwt(new ObjectId(userId.id))
     if (!newToken) return res.sendStatus(401)
+
+    await authRepository.blockRefreshToken(token)
 
     res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
     return res.status(200).json({accessToken: newToken.accessToken})
@@ -82,27 +88,22 @@ authRouter.post('/login', authPassMiddleware, errorsMiddleware, async (req: Requ
 authRouter.post('/logout', errorsMiddleware, async (req: Request, res: Response) => {
 
     const token = req.cookies.refreshToken
+    if (!token)  return res.sendStatus(401)
 
-    if (!token) {
-        res.sendStatus(401)
-        return
-    }
 
     const userToken = await jwtService.getUserByRefreshToken(token)
-    if (!userToken) {
-        res.sendStatus(401)
-        return
-    }
+    if (!userToken) return res.sendStatus(401)
+
+
+    const isBlocked = await authRepository.checkRefreshToken(token)
+    if (!isBlocked) return res.sendStatus(401)
 
     const userId = await userService.getUserId(userToken)
+    if (!userId) return res.sendStatus(401)
 
-    if (!userId) {
-        res.sendStatus(401)
-        return
-    }
 
-    res.clearCookie('refreshToken')
-    return res.sendStatus(204)
+    await authRepository.blockRefreshToken(token)
+    return res.clearCookie('refreshToken').sendStatus(204)
 
 })
 
