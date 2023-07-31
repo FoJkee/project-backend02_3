@@ -61,13 +61,11 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
         return res.sendStatus(401)
     }
 
-    if (Date.now() < token.expires * 1000) {
-        const newToken = await jwtService.createJwt(new ObjectId(userId.id))
-        res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
-        return res.status(200).json({accessToken: newToken.accessToken})
-    } else {
-        return res.sendStatus(401)
-    }
+
+    const newToken = await jwtService.createJwt(new ObjectId(userId.id))
+    res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
+    return res.status(200).json({accessToken: newToken.accessToken})
+
 
 })
 
