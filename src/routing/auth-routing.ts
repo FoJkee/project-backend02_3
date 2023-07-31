@@ -46,7 +46,7 @@ authRouter.post('/registration-email-resending', errorsMiddleware, async (req: R
 })
 
 authRouter.post('/refresh-token', async (req: Request, res: Response) => {
-    const token = req.cookies.refreshToken
+    const token = req.cookies.accessToken
     if (!token) return res.sendStatus(401)
 
     const userToken = await jwtService.getUserByRefreshToken(token)
@@ -64,7 +64,7 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     const newToken = await jwtService.createJwt(new ObjectId(userId.id))
     if(!newToken) return res.sendStatus(401)
 
-    if(token.expirationTime >= new Date()){
+    if(token < new Date()){
         return res.sendStatus(401)
     } else {
         res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
