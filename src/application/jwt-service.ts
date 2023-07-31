@@ -41,7 +41,6 @@ export const jwtService = {
 
         try {
             const result: any = jwt.verify(token, jwtRefresh)
-
             return new ObjectId(result.user)
         } catch (error) {
             return null

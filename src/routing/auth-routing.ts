@@ -39,7 +39,6 @@ authRouter.post('/registration', userMiddleware, errorsMiddleware, async (req: R
 
 authRouter.post('/registration-email-resending', errorsMiddleware, async (req: Request, res: Response) => {
 
-
     const resendEmail = await userService.createNewEmailConfirmation(req.body.email)
     if (!resendEmail) return res.status(400).json(errorFunc('email'))
     return res.sendStatus(204)
@@ -60,14 +59,9 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     const userId = await userService.getUserId(userToken)
 
     if (!userId) {
-        res.sendStatus(401)
-        return
-    }
-
-    const newToken = await jwtService.createJwt(new ObjectId(userId.id))
-    if (!newToken) {
-        return res.sendStatus(401)
+       return res.sendStatus(401)
     } else {
+        const newToken = await jwtService.createJwt(new ObjectId(userId.id))
         res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
         return res.status(200).json({accessToken: newToken.accessToken})
     }
