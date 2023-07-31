@@ -48,6 +48,7 @@ authRouter.post('/registration-email-resending', errorsMiddleware, async (req: R
 
 
 authRouter.post('/refresh-token', async (req: Request, res: Response) => {
+
     const token = req.cookies.refreshToken
     if (!token) return res.sendStatus(401)
 
@@ -61,11 +62,7 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     if (!userId) return res.sendStatus(401)
 
     await authRepository.blockRefreshToken(token)
-
     const newToken = await jwtService.createJwt(new ObjectId(userId.id))
-    if (!newToken) return res.sendStatus(401)
-
-
 
     res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
     return res.status(200).json({accessToken: newToken.accessToken})
@@ -96,14 +93,14 @@ authRouter.post('/logout', errorsMiddleware, async (req: Request, res: Response)
     if (!userToken) return res.sendStatus(401)
 
 
-    const isBlocked = await authRepository.blockRefreshToken(token)
+    const isBlocked = await authRepository.checkRefreshToken(token)
     if (!isBlocked) return res.sendStatus(401)
 
     const userId = await userService.getUserId(userToken)
     if (!userId) return res.sendStatus(401)
 
 
-    await authRepository.checkRefreshToken(token)
+    await authRepository.blockRefreshToken(token)
     return res.clearCookie('refreshToken').sendStatus(204)
 
 })
