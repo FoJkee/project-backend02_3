@@ -11,6 +11,7 @@ import {jwtRefresh} from "../db";
 import {authRepository} from "../repository/auth-repository";
 import {verifyUserToken} from "../middleware /verifyUserToken";
 import {id} from "date-fns/locale";
+import {TokenExpiredError} from "jsonwebtoken";
 
 
 const errorFunc = (...args: string[]) => {
@@ -59,14 +60,14 @@ authRouter.post('/refresh-token', verifyUserToken, async (req: Request, res: Res
     if (!isBlocked) return res.sendStatus(401)
 
     const userId = await userService.getUserId(userToken)
-    if (!userId) {
-        return res.sendStatus(401)
-    } else {
+    if (!userId) return res.sendStatus(401)
+
+
         const newToken = await jwtService.createJwt(new ObjectId(userId.id))
         await authRepository.blockRefreshToken(token)
         res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
         return res.status(200).json({accessToken: newToken.accessToken})
-    }
+
 
 })
 
@@ -84,7 +85,6 @@ authRouter.post('/login', authPassMiddleware, errorsMiddleware, async (req: Requ
 
 
 authRouter.post('/logout', verifyUserToken, async (req: Request, res: Response) => {
-
     const token = req.cookies.refreshToken
 
     const userToken = await jwtService.getUserByRefreshToken(token)
@@ -94,12 +94,10 @@ authRouter.post('/logout', verifyUserToken, async (req: Request, res: Response) 
     if (!isBlocked) return res.sendStatus(401)
 
     const userId = await userService.getUserId(userToken)
-    if (!userId) {
-        return res.sendStatus(401)
-    } else {
-        await authRepository.blockRefreshToken
+    if (!userId) return res.sendStatus(401)
+
+        await authRepository.blockRefreshToken(token)
         return res.clearCookie('refreshToken').sendStatus(204)
-    }
 
 })
 
