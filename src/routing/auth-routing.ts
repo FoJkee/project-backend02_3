@@ -7,6 +7,7 @@ import {authBearerMiddleware} from "../middleware /authbearer-middleware";
 import {userService} from "../domen/user-service";
 import {userMiddleware} from "../middleware /user-middleware";
 import {ObjectId} from "mongodb";
+import {jwtRefresh} from "../db";
 
 
 const errorFunc = (...args: string[]) => {
@@ -47,7 +48,8 @@ authRouter.post('/registration-email-resending', errorsMiddleware, async (req: R
 
 authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     const token = req.cookies.refreshToken
-    if(!token) return res.sendStatus(401)
+    if (!token) return res.sendStatus(401)
+
 
     const userToken = await jwtService.getUserByRefreshToken(token)
     if (!userToken) {
@@ -62,13 +64,14 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
         return
     }
 
-
-    //timeAge token??
-
-    const newToken = await jwtService.createJwt(new ObjectId(userId.id))
-    if(!newToken) return res.sendStatus(401)
-    res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
-    return res.status(200).json({accessToken: newToken.accessToken})
+    if (token.refreshToken.Date.now() > token.refreshToken.expiresIn) {
+        const newToken = await jwtService.createJwt(new ObjectId(userId.id))
+        if (!newToken) return res.sendStatus(401)
+        res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
+        return res.status(200).json({accessToken: newToken.accessToken})
+    } else {
+        return res.sendStatus(401)
+    }
 
 
 })
@@ -109,7 +112,7 @@ authRouter.post('/logout', errorsMiddleware, async (req: Request, res: Response)
     }
 
     res.clearCookie('refreshToken')
-   return res.sendStatus(204)
+    return res.sendStatus(204)
 
 })
 
