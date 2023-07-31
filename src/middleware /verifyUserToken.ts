@@ -4,7 +4,8 @@ import {authRepository} from "../repository/auth-repository";
 import {userService} from "../domen/user-service";
 
 export const verifyUserToken = async (req: Request, res: Response, next: NextFunction) => {
-    const token =  req.cookies.refreshToken
+
+    const token = req.cookies.refreshToken
     if (!token) return res.sendStatus(401)
 
     const userToken = await jwtService.getUserByRefreshToken(token)
