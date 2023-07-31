@@ -93,6 +93,7 @@ export const userRepository = {
     async getMe(): Promise<UserMe | null> {
 
         const getUser = await userCollection.findOne()
+
         if (getUser) {
             return {
                 email: getUser.email,
