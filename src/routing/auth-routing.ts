@@ -52,7 +52,7 @@ authRouter.post('/registration-email-resending', errorsMiddleware, async (req: R
 
 
 
-authRouter.post('/refresh-token',authBearerMiddleware, async (req: Request, res: Response) => {
+authRouter.post('/refresh-token', async (req: Request, res: Response) => {
 
     const token = req.cookies.refreshToken
     if (!token) return res.sendStatus(401)
