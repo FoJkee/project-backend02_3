@@ -49,18 +49,24 @@ authRouter.post('/registration-email-resending', errorsMiddleware, async (req: R
 })
 
 
-
-
-
-
 authRouter.post('/refresh-token', verifyUserToken, async (req: Request, res: Response) => {
+    const token = req.cookies.refreshToken
 
+    const userToken = await jwtService.getUserByRefreshToken(token)
+    if (!userToken) return res.sendStatus(401)
 
-    const newToken = await jwtService.createJwt
-    await authRepository.blockRefreshToken
+    const isBlocked = await authRepository.checkRefreshToken(token)
+    if (!isBlocked) return res.sendStatus(401)
 
-    res.cookie('refreshToken', newToken, {httpOnly: true, secure: true})
-    return res.status(200).json({accessToken: newToken})
+    const userId = await userService.getUserId(userToken)
+    if (!userId) {
+        return res.sendStatus(401)
+    } else {
+        const newToken = await jwtService.createJwt(new ObjectId(userId.id))
+        await authRepository.blockRefreshToken(token)
+        res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
+        return res.status(200).json({accessToken: newToken.accessToken})
+    }
 
 })
 
@@ -77,11 +83,23 @@ authRouter.post('/login', authPassMiddleware, errorsMiddleware, async (req: Requ
 })
 
 
-authRouter.post('/logout',verifyUserToken, async (req: Request, res: Response) => {
+authRouter.post('/logout', verifyUserToken, async (req: Request, res: Response) => {
 
+    const token = req.cookies.refreshToken
 
-    await authRepository.blockRefreshToken
-    return res.clearCookie('refreshToken').sendStatus(204)
+    const userToken = await jwtService.getUserByRefreshToken(token)
+    if (!userToken) return res.sendStatus(401)
+
+    const isBlocked = await authRepository.checkRefreshToken(token)
+    if (!isBlocked) return res.sendStatus(401)
+
+    const userId = await userService.getUserId(userToken)
+    if (!userId) {
+        return res.sendStatus(401)
+    } else {
+        await authRepository.blockRefreshToken
+        return res.clearCookie('refreshToken').sendStatus(204)
+    }
 
 })
 
