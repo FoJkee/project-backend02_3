@@ -1,16 +1,15 @@
 import jwt from 'jsonwebtoken'
 import {ObjectId} from "mongodb";
 import {jwtAccess, jwtRefresh, tokenCollection, userCollection} from "../db";
-import {randomUUID} from "crypto";
 
 
 export const jwtService = {
 
     async createJwt(id: ObjectId) {
 
-        const accessToken: string = jwt.sign({user: id}, jwtAccess, {expiresIn: "10sec"})
+        const accessToken: string = jwt.sign({user: id}, jwtAccess, {expiresIn: "10s"})
 
-        const refreshToken: string = jwt.sign({user: id}, jwtRefresh, {expiresIn: "20sec"} )
+        const refreshToken: string = jwt.sign({user: id}, jwtRefresh, {expiresIn: "20s"} )
 
         return {
             accessToken, refreshToken
