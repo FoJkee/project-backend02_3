@@ -54,17 +54,18 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     const userToken = await jwtService.getUserByRefreshToken(token)
     if (!userToken) return res.sendStatus(401)
 
-    const isBlocked = await authRepository.blockRefreshToken(token)
+    const isBlocked = await authRepository.checkRefreshToken(token)
     if (!isBlocked) return res.sendStatus(401)
 
     const userId = await userService.getUserId(userToken)
     if (!userId) return res.sendStatus(401)
 
+    await authRepository.blockRefreshToken(token)
 
     const newToken = await jwtService.createJwt(new ObjectId(userId.id))
     if (!newToken) return res.sendStatus(401)
 
-    await authRepository.checkRefreshToken(token)
+
 
     res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
     return res.status(200).json({accessToken: newToken.accessToken})
