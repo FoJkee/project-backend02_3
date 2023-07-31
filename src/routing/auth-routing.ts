@@ -62,14 +62,10 @@ authRouter.post('/refresh-token', verifyUserToken, async (req: Request, res: Res
     const userId = await userService.getUserId(userToken)
     if (!userId) return res.sendStatus(401)
 
-    if (token) {
-        const newToken = await jwtService.createJwt(new ObjectId(userId.id))
-        await authRepository.blockRefreshToken(token)
-        res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
-        return res.status(200).json({accessToken: newToken.accessToken})
-    } else {
-        return res.sendStatus(401)
-    }
+    const newToken = await jwtService.createJwt(new ObjectId(userId.id))
+    await authRepository.blockRefreshToken(token)
+    res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
+    return res.status(200).json({accessToken: newToken.accessToken})
 
 
 })
@@ -86,9 +82,9 @@ authRouter.post('/login', authPassMiddleware, errorsMiddleware, async (req: Requ
     }
 })
 
-
 authRouter.post('/logout', verifyUserToken, async (req: Request, res: Response) => {
     const token = req.cookies.refreshToken
+    if (!token) return res.sendStatus(401)
 
     const userToken = await jwtService.getUserByRefreshToken(token)
     if (!userToken) return res.sendStatus(401)
@@ -98,12 +94,9 @@ authRouter.post('/logout', verifyUserToken, async (req: Request, res: Response) 
 
     const userId = await userService.getUserId(userToken)
     if (!userId) return res.sendStatus(401)
-    if (token) {
-        await authRepository.blockRefreshToken(token)
-        return res.clearCookie('refreshToken').sendStatus(204)
-    } else {
-        return res.sendStatus(401)
-    }
+
+    await authRepository.blockRefreshToken(token)
+    return res.clearCookie('refreshToken').sendStatus(204)
 
 })
 
