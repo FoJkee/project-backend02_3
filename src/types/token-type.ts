@@ -1,3 +1,3 @@
-export type TokeView = {
+export type TokenView = {
     refreshToken: string
 }

@@ -64,10 +64,10 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     const userId = await userService.getUserId(userToken)
     if (!userId) return res.sendStatus(401)
 
+    await authRepository.blockRefreshToken(userId.id)
+
     const newToken = await jwtService.createJwt(new ObjectId(userId.id))
     if (!newToken) return res.sendStatus(401)
-
-    await authRepository.blockRefreshToken(token)
 
     res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
     return res.status(200).json({accessToken: newToken.accessToken})
@@ -100,7 +100,7 @@ authRouter.post('/logout', async (req: Request, res: Response) => {
     const userId = await userService.getUserId(userToken)
     if (!userId) return res.sendStatus(401)
 
-    await authRepository.blockRefreshToken(token)
+    await authRepository.blockRefreshToken(userId.id)
     return res.clearCookie('refreshToken').sendStatus(204)
 
 })
