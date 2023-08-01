@@ -13,6 +13,7 @@ import {verifyUserToken} from "../middleware /verifyUserToken";
 import {id, is} from "date-fns/locale";
 import {TokenExpiredError} from "jsonwebtoken";
 import {log} from "util";
+import * as http from "http";
 
 
 const errorFunc = (...args: string[]) => {
@@ -54,7 +55,41 @@ authRouter.post('/registration-email-resending', errorsMiddleware, async (req: R
 authRouter.post('/refresh-token', async (req: Request, res: Response) => {
 
     const token = req.cookies.refreshToken
-    console.log('token', token)
+    if (!token) return res.sendStatus(401)
+
+    const userToken = await jwtService.getUserByRefreshToken(token)
+    if (!userToken) return res.sendStatus(401)
+
+    const isBlocked = await authRepository.checkRefreshToken(token)
+    if (!isBlocked) return res.sendStatus(401)
+
+    const userId = await userService.getUserId(userToken)
+    if (!userId) return res.sendStatus(401)
+
+    await authRepository.blockRefreshToken(token)
+
+    const newToken = await jwtService.createJwt(new ObjectId(userId.id))
+    if (!newToken) return res.sendStatus(401)
+    res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
+    return res.status(200).json({accessToken: newToken.accessToken})
+})
+
+authRouter.post('/login', authPassMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
+
+    const loginUser = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
+    if (loginUser) {
+        const token = await jwtService.createJwt(loginUser._id)
+        res.cookie('refreshToken', token.refreshToken, {httpOnly: true, secure: true})
+        res.status(200).json({accessToken: token.accessToken})
+    } else {
+        res.sendStatus(401)
+    }
+})
+
+authRouter.post('/logout', async (req: Request, res: Response) => {
+
+    const token = req.cookies.refreshToken
+    console.log("token", token)
     if (!token) return res.sendStatus(401)
 
     const userToken = await jwtService.getUserByRefreshToken(token)
@@ -71,63 +106,13 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     console.log("isBlocked", isBlocked)
     if (!isBlocked) return res.sendStatus(401)
 
-    const newToken = await jwtService.createJwt(new ObjectId(userId.id))
-    console.log("newToken", newToken)
-    if (!newToken) return res.sendStatus(401)
-
-    res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
-    return res.status(200).json({accessToken: newToken.accessToken})
-})
-
-
-authRouter.post('/login', authPassMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
-
-    const loginUser = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
-    if (loginUser) {
-        const token = await jwtService.createJwt(loginUser._id)
-        res.cookie('refreshToken', token.refreshToken, {httpOnly: true, secure: true})
-        res.status(200).json({accessToken: token.accessToken})
-    } else {
-        res.sendStatus(401)
-    }
-})
-
-authRouter.post('/logout', async (req: Request, res: Response) => {
-
-    try {
-        const token = req.cookies.refreshToken
-        const userToken = await jwtService.getUserByRefreshToken(token)
-        await authRepository.checkRefreshToken(token)
-        const userId = await userService.getUserId(new ObjectId(userToken!.id))
-        await authRepository.blockRefreshToken(token)
-        return res.clearCookie('refreshToken').sendStatus(204)
-    } catch {
-        return res.sendStatus(401)
-    }
-
-    // const token = req.cookies.refreshToken
-    //
-    // if (!token) return res.sendStatus(401)
-    //
-    // const userToken = await jwtService.getUserByRefreshToken(token)
-    // if (!userToken) return res.sendStatus(401)
-    //
-    // const isBlocked = await authRepository.checkRefreshToken(token)
-    // if (!isBlocked) return res.sendStatus(401)
-    //
-    // const userId = await userService.getUserId(userToken)
-    // if (!userId) return res.sendStatus(401)
-    //
-    // await authRepository.blockRefreshToken(userId.id)
-    // return res.clearCookie('refreshToken').sendStatus(204)
+    return res.clearCookie('refreshToken').sendStatus(204)
 
 })
-
 
 authRouter.get('/me', authBearerMiddleware, async (req: Request, res: Response) => {
 
     const userMe = await userRepository.getMe()
-
     return res.status(200).json(userMe)
 
 })
