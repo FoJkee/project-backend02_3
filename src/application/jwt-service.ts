@@ -7,9 +7,9 @@ export const jwtService = {
 
     async createJwt(id: ObjectId) {
 
-        const accessToken: string = jwt.sign({user: id}, jwtAccess, {expiresIn: "100s"})
+        const accessToken: string = jwt.sign({user: id}, jwtAccess, {expiresIn: "10s"})
 
-        const refreshToken: string = jwt.sign({user: id}, jwtRefresh, {expiresIn: "200s"} )
+        const refreshToken: string = jwt.sign({user: id}, jwtRefresh, {expiresIn: "20s"} )
 
         return {
             accessToken, refreshToken
