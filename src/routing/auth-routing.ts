@@ -7,13 +7,8 @@ import {authBearerMiddleware} from "../middleware /authbearer-middleware";
 import {userService} from "../domen/user-service";
 import {userMiddleware} from "../middleware /user-middleware";
 import {ObjectId} from "mongodb";
-import {jwtRefresh} from "../db";
 import {authRepository} from "../repository/auth-repository";
-import {verifyUserToken} from "../middleware /verifyUserToken";
-import {id, is} from "date-fns/locale";
-import {TokenExpiredError} from "jsonwebtoken";
-import {log} from "util";
-import * as http from "http";
+
 
 
 const errorFunc = (...args: string[]) => {
@@ -42,7 +37,6 @@ authRouter.post('/registration', userMiddleware, errorsMiddleware, async (req: R
     return res.sendStatus(204)
 })
 
-
 authRouter.post('/registration-email-resending', errorsMiddleware, async (req: Request, res: Response) => {
 
     const resendEmail = await userService.createNewEmailConfirmation(req.body.email)
@@ -50,7 +44,6 @@ authRouter.post('/registration-email-resending', errorsMiddleware, async (req: R
     return res.sendStatus(204)
 
 })
-
 
 authRouter.post('/refresh-token', async (req: Request, res: Response) => {
 
@@ -60,10 +53,10 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     const userToken = await jwtService.getUserByRefreshToken(token)
     if (!userToken) return res.sendStatus(401)
 
-    await authRepository.blockRefreshToken(token)
-
     const userId = await userService.getUserId(userToken)
     if (!userId) return res.sendStatus(401)
+
+    await authRepository.blockRefreshToken(token)
 
     const isBlocked = await authRepository.checkRefreshToken(token)
     if (!isBlocked) return res.sendStatus(401)
@@ -96,11 +89,11 @@ authRouter.post('/logout', async (req: Request, res: Response) => {
     console.log("userToken", userToken)
     if (!userToken) return res.sendStatus(401)
 
-    await authRepository.blockRefreshToken(token)
-
     const userId = await userService.getUserId(userToken)
     console.log("userId", userId)
     if (!userId) return res.sendStatus(401)
+
+    await authRepository.blockRefreshToken(token)
 
     const isBlocked = await authRepository.checkRefreshToken(token)
     console.log("isBlocked", isBlocked)
