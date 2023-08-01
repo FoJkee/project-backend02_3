@@ -10,8 +10,9 @@ import {ObjectId} from "mongodb";
 import {jwtRefresh} from "../db";
 import {authRepository} from "../repository/auth-repository";
 import {verifyUserToken} from "../middleware /verifyUserToken";
-import {id} from "date-fns/locale";
+import {id, is} from "date-fns/locale";
 import {TokenExpiredError} from "jsonwebtoken";
+import {log} from "util";
 
 
 const errorFunc = (...args: string[]) => {
@@ -53,20 +54,25 @@ authRouter.post('/registration-email-resending', errorsMiddleware, async (req: R
 authRouter.post('/refresh-token', async (req: Request, res: Response) => {
 
     const token = req.cookies.refreshToken
+    console.log('token', token)
     if (!token) return res.sendStatus(401)
 
     const userToken = await jwtService.getUserByRefreshToken(token)
+    console.log("userToken", userToken)
     if (!userToken) return res.sendStatus(401)
 
-    const isBlocked = await authRepository.checkRefreshToken(token)
-    if (!isBlocked) return res.sendStatus(401)
+    await authRepository.blockRefreshToken(token)
 
     const userId = await userService.getUserId(userToken)
+    console.log("userId", userId)
     if (!userId) return res.sendStatus(401)
 
-    await authRepository.blockRefreshToken(userId.id)
+    const isBlocked = await authRepository.checkRefreshToken(token)
+    console.log("isBlocked", isBlocked)
+    if (!isBlocked) return res.sendStatus(401)
 
     const newToken = await jwtService.createJwt(new ObjectId(userId.id))
+    console.log("newToken", newToken)
     if (!newToken) return res.sendStatus(401)
 
     res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
