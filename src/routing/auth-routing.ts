@@ -88,20 +88,32 @@ authRouter.post('/login', authPassMiddleware, errorsMiddleware, async (req: Requ
 
 authRouter.post('/logout', async (req: Request, res: Response) => {
 
-    const token = req.cookies.refreshToken
-    if (!token) return res.sendStatus(401)
+    try {
+        const token = req.cookies.refreshToken
+        const userToken = await jwtService.getUserByRefreshToken(token)
+        await authRepository.checkRefreshToken(token)
+        const userId = await userService.getUserId(new ObjectId(userToken!.id))
+        await authRepository.blockRefreshToken(token)
+        return res.clearCookie('refreshToken').sendStatus(204)
+    } catch {
+        return res.sendStatus(401)
+    }
 
-    const userToken = await jwtService.getUserByRefreshToken(token)
-    if (!userToken) return res.sendStatus(401)
-
-    const isBlocked = await authRepository.checkRefreshToken(token)
-    if (!isBlocked) return res.sendStatus(401)
-
-    const userId = await userService.getUserId(userToken)
-    if (!userId) return res.sendStatus(401)
-
-    await authRepository.blockRefreshToken(userId.id)
-    return res.clearCookie('refreshToken').sendStatus(204)
+    // const token = req.cookies.refreshToken
+    //
+    // if (!token) return res.sendStatus(401)
+    //
+    // const userToken = await jwtService.getUserByRefreshToken(token)
+    // if (!userToken) return res.sendStatus(401)
+    //
+    // const isBlocked = await authRepository.checkRefreshToken(token)
+    // if (!isBlocked) return res.sendStatus(401)
+    //
+    // const userId = await userService.getUserId(userToken)
+    // if (!userId) return res.sendStatus(401)
+    //
+    // await authRepository.blockRefreshToken(userId.id)
+    // return res.clearCookie('refreshToken').sendStatus(204)
 
 })
 
