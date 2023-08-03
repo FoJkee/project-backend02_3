@@ -31,12 +31,7 @@ export const commentRepository = {
     },
 
     async updateCom(content: string, id: string) {
-        const updateComment = await commentCollection.updateOne({_id: new ObjectId(id)},
-            {
-                $set: {
-                    content
-                }
-            })
+        const updateComment = await commentCollection.updateOne({_id: new ObjectId(id)}, {$set: {content}})
         return updateComment.matchedCount === 1
 
     }
