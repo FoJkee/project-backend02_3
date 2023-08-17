@@ -117,15 +117,8 @@ export const userService = {
 
         return user
 
-    },
+    }
 
-    // async confirmToken(token: string){
-    //     const newToken = await authRepository.timeToken(token)
-    //
-    //     if(!newToken) return null
-    //     if(newToken.refreshToken < new Date()) return null
-    //
-    // }
 
 
 

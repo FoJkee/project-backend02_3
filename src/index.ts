@@ -8,6 +8,7 @@ import {userRouter} from "./routing/user-routing";
 import {authRouter} from "./routing/auth-routing";
 import {commentRouter} from "./routing/comment-routing";
 import cookieParser from 'cookie-parser'
+import {securityRouter} from "./routing/securityDevices-router";
 
 const app = express()
 
@@ -27,6 +28,7 @@ app.use('/testing', testingRouter)
 app.use('/users', userRouter)
 app.use('/auth', authRouter)
 app.use('/comments', commentRouter)
+app.use('/SecurityDevices', securityRouter)
 
 
 app.get('/', (req: Request, res: Response) => {
