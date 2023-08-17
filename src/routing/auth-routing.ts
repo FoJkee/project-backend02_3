@@ -6,7 +6,12 @@ import {userRepository} from "../repository/user-repository";
 import {authBearerMiddleware} from "../middleware /authbearer-middleware";
 import {userService} from "../domen/user-service";
 import {userMiddleware} from "../middleware /user-middleware";
-import {emailResending} from "../middleware /email-middleware";
+import {ObjectId} from "mongodb";
+import {authRepository} from "../repository/auth-repository";
+import {verifyUserToken} from "../middleware /verifyUserToken";
+import {UserTypeId} from "../types/user-type";
+
+
 
 const errorFunc = (...args: string[]) => {
     return {
@@ -34,34 +39,42 @@ authRouter.post('/registration', userMiddleware, errorsMiddleware, async (req: R
     return res.sendStatus(204)
 })
 
-
 authRouter.post('/registration-email-resending', errorsMiddleware, async (req: Request, res: Response) => {
-
 
     const resendEmail = await userService.createNewEmailConfirmation(req.body.email)
     if (!resendEmail) return res.status(400).json(errorFunc('email'))
     return res.sendStatus(204)
 
-
 })
 
+authRouter.post('/refresh-token',verifyUserToken, async (req: Request, res: Response) => {
+
+    const newToken = await jwtService.createJwt(new ObjectId(req.user!.id))
+    res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
+    return res.status(200).json({accessToken: newToken.accessToken})
+})
 
 authRouter.post('/login', authPassMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
 
     const loginUser = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
     if (loginUser) {
-        const token = await jwtService.createJwt(loginUser)
-        res.status(200).json({accessToken: token})
-
+        const token = await jwtService.createJwt(loginUser._id)
+        res.cookie('refreshToken', token.refreshToken, {httpOnly: true, secure: true})
+        res.status(200).json({accessToken: token.accessToken})
     } else {
         res.sendStatus(401)
     }
 })
 
+authRouter.post('/logout', verifyUserToken, async (req: Request, res: Response) => {
+
+    return res.clearCookie('refreshToken').sendStatus(204)
+
+})
+
 authRouter.get('/me', authBearerMiddleware, async (req: Request, res: Response) => {
 
     const userMe = await userRepository.getMe()
-
     return res.status(200).json(userMe)
 
 })

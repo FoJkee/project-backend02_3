@@ -10,7 +10,8 @@ export type UserType_Id = {
     emailConfirmation: {
         confirmationCode: string,
         expirationDate: Date,
-        isConfirmed: boolean
+        isConfirmed: boolean,
+
     }
 }
 

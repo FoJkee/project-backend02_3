@@ -7,7 +7,7 @@ import {testingRouter} from "./routing/testing-routing";
 import {userRouter} from "./routing/user-routing";
 import {authRouter} from "./routing/auth-routing";
 import {commentRouter} from "./routing/comment-routing";
-
+import cookieParser from 'cookie-parser'
 
 const app = express()
 
@@ -16,10 +16,10 @@ const port = 3000
 const bodyParserWare = express.json()
 
 
-
-
 app.use(bodyParser.json())
+app.use(cookieParser())
 app.use(bodyParserWare)
+
 
 app.use("/blogs", blogRouter)
 app.use('/posts', postRouter)
@@ -30,7 +30,7 @@ app.use('/comments', commentRouter)
 
 
 app.get('/', (req: Request, res: Response) => {
-    res.send('Hello World!')
+    res.send('Hello!')
 })
 
 
