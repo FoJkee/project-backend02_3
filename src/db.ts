@@ -5,6 +5,7 @@ import {PostType_Id} from "./types/post-type";
 import {UserType_Id} from "./types/user-type";
 import {CommentType_Id} from "./types/comment-type";
 import {TokenView} from "./types/token-type";
+import {DeviceType, DeviceTypeView} from "./types/device-type";
 
 dotenv.config()
 
@@ -31,8 +32,8 @@ export const blogCollection = db.collection<BlogType_Id>('blogs')
 export const postCollection = db.collection<PostType_Id>('posts')
 export const userCollection = db.collection<UserType_Id>('users')
 export const commentCollection = db.collection<CommentType_Id>('comments')
-
 export const tokenCollectionBlack = db.collection<TokenView>('tokens')
+export const devicesCollection = db.collection<DeviceTypeView>('device')
 
 
 export async function runDb() {

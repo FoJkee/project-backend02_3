@@ -7,9 +7,8 @@ import {authBearerMiddleware} from "../middleware /authbearer-middleware";
 import {userService} from "../domen/user-service";
 import {userMiddleware} from "../middleware /user-middleware";
 import {ObjectId} from "mongodb";
-import {authRepository} from "../repository/auth-repository";
 import {verifyUserToken} from "../middleware /verifyUserToken";
-import {UserTypeId} from "../types/user-type";
+import {deviceMiddleware} from "../middleware /device-middleware";
 
 
 
@@ -54,7 +53,7 @@ authRouter.post('/refresh-token',verifyUserToken, async (req: Request, res: Resp
     return res.status(200).json({accessToken: newToken.accessToken})
 })
 
-authRouter.post('/login', authPassMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
+authRouter.post('/login', deviceMiddleware, authPassMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
 
     const loginUser = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
     if (loginUser) {

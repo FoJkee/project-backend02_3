@@ -28,7 +28,7 @@ app.use('/testing', testingRouter)
 app.use('/users', userRouter)
 app.use('/auth', authRouter)
 app.use('/comments', commentRouter)
-app.use('/SecurityDevices', securityRouter)
+app.use('/security', securityRouter)
 
 
 app.get('/', (req: Request, res: Response) => {
