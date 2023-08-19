@@ -21,6 +21,8 @@ app.use(bodyParser.json())
 app.use(cookieParser())
 app.use(bodyParserWare)
 
+app.set('trust proxy', true)
+
 
 app.use("/blogs", blogRouter)
 app.use('/posts', postRouter)
@@ -28,7 +30,7 @@ app.use('/testing', testingRouter)
 app.use('/users', userRouter)
 app.use('/auth', authRouter)
 app.use('/comments', commentRouter)
-app.use('/security', securityRouter)
+app.use('/security/devices', securityRouter)
 
 
 app.get('/', (req: Request, res: Response) => {

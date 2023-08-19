@@ -1,7 +1,6 @@
 import {NextFunction, Request, Response} from "express";
 import {Filter, ObjectId} from "mongodb";
 import {devicesCollection} from "../db";
-import {DeviceTypeView} from "../types/device-type";
 
 
 export const deviceMiddleware = async (req: Request, res: Response, next: NextFunction) => {
@@ -13,7 +12,7 @@ export const deviceMiddleware = async (req: Request, res: Response, next: NextFu
         date: new Date()
     }
 
-    const filter: Filter<DeviceTypeView> = {
+    const filter = {
         IP: newDevice.IP, URL: newDevice.URL,
         date: {$gte: new Date(Date.now() - 10000)}
     }

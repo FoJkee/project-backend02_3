@@ -9,7 +9,8 @@ import {userMiddleware} from "../middleware /user-middleware";
 import {ObjectId} from "mongodb";
 import {verifyUserToken} from "../middleware /verifyUserToken";
 import {deviceMiddleware} from "../middleware /device-middleware";
-
+import {deviceRepo} from "../repository/device-repo";
+import {deviceService} from "../domen/device-service";
 
 
 const errorFunc = (...args: string[]) => {
@@ -46,16 +47,20 @@ authRouter.post('/registration-email-resending', errorsMiddleware, async (req: R
 
 })
 
-authRouter.post('/refresh-token',verifyUserToken, async (req: Request, res: Response) => {
+authRouter.post('/refresh-token', verifyUserToken, async (req: Request, res: Response) => {
 
     const newToken = await jwtService.createJwt(new ObjectId(req.user!.id))
+
     res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
     return res.status(200).json({accessToken: newToken.accessToken})
 })
 
 authRouter.post('/login', deviceMiddleware, authPassMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
+    const device = req.headers['user-agent'] || ''
 
-    const loginUser = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
+    const loginUser = await userService.checkCredentials(req.body.loginOrEmail,
+        req.body.password, req.ip, req.body.title)
+
     if (loginUser) {
         const token = await jwtService.createJwt(loginUser._id)
         res.cookie('refreshToken', token.refreshToken, {httpOnly: true, secure: true})

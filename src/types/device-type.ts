@@ -1,20 +1,21 @@
-import {ObjectId} from "mongodb";
+import {ObjectId, WithId} from "mongodb";
 
 export type DeviceType = {
-    IP: string,
+    ip: string,
     title: string,
     lastActiveDate: string,
     deviceId: string
 }
 
 
-export type DeviceTypeView = {
-    _id: ObjectId,
-    IP: string | null,
-    URL: string,
-    date: Date
-
+export type DeviceType_Id = {
+    ip: string,
+    title: string,
+    lastActiveDate: string,
+    deviceId: string
 }
+
+export type DeviceTypeId = { userId: string } & Omit<DeviceType_Id, '_id'>
 
 
 

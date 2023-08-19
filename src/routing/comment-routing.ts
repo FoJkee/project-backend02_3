@@ -25,6 +25,7 @@ commentRouter.delete('/:commentId', authBearerMiddleware, async (req: Request, r
         res.sendStatus(404)
         return
     }
+
     if (req.user!.id !== findComId?.commentatorInfo?.userId) {
         res.sendStatus(403)
 

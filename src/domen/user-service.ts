@@ -8,6 +8,7 @@ import add from "date-fns/add";
 import {emailAdapters} from "../adapters/email-adapters";
 import { userCollection} from "../db";
 import {randomUUID} from "crypto";
+import {deviceService} from "./device-service";
 
 
 
@@ -21,15 +22,17 @@ export const userService = {
 
     },
 
-    async checkCredentials(loginOrEmail: string, password: string) {
+    async checkCredentials(loginOrEmail: string, password: string, ip: string, title: string) {
         const user = await userRepository. findLoginOrEmail(loginOrEmail)
         if (!user) return null
 
         const passwordHash = await this._generateHash(password, user.passwordSalt)
-
         if (user.passwordHash !== passwordHash) {
             return false
         }
+
+        const createDevice = await deviceService.createDevice(ip, title)
+
 
         return user
     },
