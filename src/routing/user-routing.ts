@@ -33,7 +33,7 @@ userRouter.post('/', authMiddleware, userMiddleware, errorsMiddleware, async (re
 })
 
 userRouter.delete('/:id', authMiddleware, async (req: Request, res: Response) => {
-    const findUserId = await userService.getUserId(req.params.id)
+    const findUserId = await userService.getUserId(new ObjectId(req.params.id))
     if(!findUserId){
         res.sendStatus(404)
         return

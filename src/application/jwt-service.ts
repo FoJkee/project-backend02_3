@@ -1,29 +1,41 @@
 import jwt from 'jsonwebtoken'
-import {UserType_Id} from "../types/user-type";
 import {ObjectId} from "mongodb";
-import {jwtSecret} from "../db";
-import {userService} from "../domen/user-service";
-import {id} from "date-fns/locale";
-import {userRepository} from "../repository/user-repository";
+import {jwtAccess, jwtRefresh} from "../db";
 
 
 export const jwtService = {
 
-    async createJwt(user: UserType_Id) {
+    async createJwt(id: ObjectId) {
 
-        const token = jwt.sign({user: user._id}, jwtSecret, {expiresIn: '5h'})
-        return token
+        const accessToken: string = jwt.sign({user: id}, jwtAccess, {expiresIn: "100s"})
+
+        const refreshToken: string = jwt.sign({deviseId: id}, jwtRefresh, {expiresIn: "200s"} )
+
+        return {
+            accessToken, refreshToken
+        }
 
     },
+
 
     async getUserByToken(token: string) {
 
         try {
-            const result: any = jwt.verify(token, jwtSecret)
+            const result: any = jwt.verify(token, jwtAccess)
+            return new ObjectId(result.user)
+        } catch (error) {
+            return null
+        }
+    },
+
+    async getUserByRefreshToken(token: string) {
+
+        try {
+            const result: any = jwt.verify(token, jwtRefresh)
+
             return new ObjectId(result.user)
         } catch (error) {
             return null
         }
     }
-
 }

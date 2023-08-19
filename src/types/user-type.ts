@@ -1,4 +1,4 @@
-import {ObjectId, WithId} from "mongodb";
+import {ObjectId} from "mongodb";
 
 export type UserType_Id = {
     _id: ObjectId,
@@ -10,7 +10,8 @@ export type UserType_Id = {
     emailConfirmation: {
         confirmationCode: string,
         expirationDate: Date,
-        isConfirmed: boolean
+        isConfirmed: boolean,
+
     }
 }
 

@@ -6,8 +6,9 @@ import bcrypt from "bcrypt";
 import {v4 as uuidv4} from "uuid";
 import add from "date-fns/add";
 import {emailAdapters} from "../adapters/email-adapters";
-import {userCollection} from "../db";
+import { userCollection} from "../db";
 import {randomUUID} from "crypto";
+
 
 
 export const userService = {
@@ -21,7 +22,7 @@ export const userService = {
     },
 
     async checkCredentials(loginOrEmail: string, password: string) {
-        const user = await userRepository.findLoginOrEmail(loginOrEmail)
+        const user = await userRepository. findLoginOrEmail(loginOrEmail)
         if (!user) return null
 
         const passwordHash = await this._generateHash(password, user.passwordSalt)
@@ -29,6 +30,7 @@ export const userService = {
         if (user.passwordHash !== passwordHash) {
             return false
         }
+
         return user
     },
 
@@ -50,7 +52,8 @@ export const userService = {
                     hours: 1,
                     minutes: 3
                 }),
-                isConfirmed: false
+                isConfirmed: false,
+
             }
         }
         const createResult = await userRepository.createUser(userNew)
@@ -63,7 +66,6 @@ export const userService = {
             return null
         }
         return createResult
-
     },
 
     async createNewEmailConfirmation(email: string) {
@@ -77,7 +79,7 @@ export const userService = {
                 hours: 1,
                 minutes: 3
             }),
-            isConfirmed: false
+            isConfirmed: false,
 
         }
         await userCollection.updateOne({email}, {$set: {emailConfirmation: newEmailConfirmation}})
@@ -85,7 +87,7 @@ export const userService = {
         return true
     },
 
-    async getUserId(id: string): Promise<UserTypeId | null> {
+    async getUserId(id: ObjectId): Promise<UserTypeId | null> {
         return userRepository.getUserId(id)
 
     },
@@ -115,17 +117,9 @@ export const userService = {
 
         return user
 
-    },
-
-    async confirmEmail(email: string) {
-
-        const user = await userRepository.findLoginOrEmail(email)
-        if (!user) return null
-        if (user.emailConfirmation.isConfirmed) return null
-
-        return user
-
-
     }
+
+
+
 
 }
