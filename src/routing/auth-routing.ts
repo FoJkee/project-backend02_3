@@ -45,13 +45,17 @@ authRouter.post('/registration', deviceMiddleware, userMiddleware, errorsMiddlew
 })
 
 authRouter.post('/registration-email-resending', deviceMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
-
-    const resendEmail = await userService.createNewEmailConfirmation(req.body.email)
-    if (!resendEmail) {
-        res.status(400).json(errorFunc('email'))
-        return
-    } else {
-        res.sendStatus(204)
+    try {
+        const resendEmail = await userService.createNewEmailConfirmation(req.body.email)
+        if (!resendEmail) {
+            res.status(400).json(errorFunc('email'))
+            return
+        } else {
+            res.sendStatus(204)
+            return
+        }
+    } catch {
+        res.sendStatus(429)
         return
     }
 
