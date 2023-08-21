@@ -22,7 +22,7 @@ export const userService = {
 
     },
 
-    async checkCredentials(loginOrEmail: string, password: string, ip: string, title: string) {
+    async checkCredentials(loginOrEmail: string, password: string) {
         const user = await userRepository. findLoginOrEmail(loginOrEmail)
         if (!user) return null
 
@@ -31,7 +31,6 @@ export const userService = {
             return false
         }
 
-        const createDevice = await deviceService.createDevice(ip, title)
 
 
         return user

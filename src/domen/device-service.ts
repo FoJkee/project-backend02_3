@@ -5,33 +5,36 @@ import {randomUUID} from "crypto";
 import {deviceRepo} from "../repository/device-repo";
 
 
+
 export const deviceService = {
 
     async createDevice(ip: string, title: string) {
+        const deviceId = randomUUID()
+         // const tokens //jwtService.createTokens
+        // const lastActiveDate // jwtService.decode(tokens.refreshToken) 1578514
+
+
         const newDevice: DeviceType_Id = {
             ip,
             title,
-            lastActiveDate: new Date().toISOString(),
-            deviceId: randomUUID(),
+            lastActiveDate: new Date().toString(),
+            deviceId
         }
-        return deviceRepo.deviceCreate(newDevice)
+        return await deviceRepo.deviceCreate(newDevice)
+        // return tokens
     },
 
-    async deviceGet(): Promise<DeviceType_Id | null> {
+    async deviceGet(): Promise<DeviceType_Id[]> {
 
-        const devices = await devicesCollection.findOne()
+        const devices = await devicesCollection.find({}).toArray()
 
-        if (devices) {
+            return devices.map(el => ({
+                ip: el.ip,
+                title: el.title,
+                lastActiveDate: el.lastActiveDate,
+                deviceId: el.deviceId
+            }))
 
-            return {
-                ip: devices.ip,
-                title: devices.title,
-                lastActiveDate: new Date().toISOString(),
-                deviceId: devices._id.toString()
-            }
-        } else {
-            return null
-        }
     },
 
 

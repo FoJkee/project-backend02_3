@@ -15,7 +15,7 @@ export type UserType_Id = {
     }
 }
 
-export type UserTypeId = { id: string } & Omit<UserType_Id, "_id" | 'passwordHash' |
+export type UserTypeId = { id: string, deviceId?: string } & Omit<UserType_Id, "_id" | 'passwordHash' |
     'passwordSalt' | 'emailConfirmation'>
 
 
