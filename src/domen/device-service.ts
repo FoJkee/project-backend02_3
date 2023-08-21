@@ -1,4 +1,4 @@
-import {DeviceType, DeviceType_Id, DeviceTypeId} from "../types/device-type";
+import {DeviceType_Id, DeviceTypeId} from "../types/device-type";
 import {devicesCollection} from "../db";
 import {ObjectId} from "mongodb";
 import {randomUUID} from "crypto";
@@ -40,17 +40,16 @@ export const deviceService = {
 
     },
 
-    async deviceGetId(id: string): Promise<DeviceTypeId | null> {
-        const findDevId = await devicesCollection.findOne({_id: new ObjectId(id)})
+    async deviceGetId(userId: string): Promise<DeviceTypeId | null> {
+        const findDevId = await devicesCollection.findOne({_id: new ObjectId(userId)})
 
         if (findDevId) {
             return {
-
                 userId: findDevId._id.toString(),
+                deviceId: findDevId.deviceId,
                 ip: findDevId.ip,
-                title: findDevId.title,
-                lastActiveDate: new Date().toISOString(),
-                deviceId: findDevId.deviceId
+                lastActiveDate: new Date().toString(),
+                title: findDevId.title
             }
         } else {
             return null
@@ -58,8 +57,8 @@ export const deviceService = {
 
     },
 
-    async deviceDeleteAllActiveSession(userId: string, deviceId: string): Promise<boolean> {
-        const deviceDel = await devicesCollection.deleteMany({userId, deviceId: {$ne: deviceId}})
+    async deviceDeleteAllActiveSession(id: string, deviceId: string): Promise<boolean> {
+        const deviceDel = await devicesCollection.deleteMany({id, deviceId: {$ne: deviceId}})
         return deviceDel.deletedCount === 1
     },
 

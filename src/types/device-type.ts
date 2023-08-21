@@ -1,4 +1,4 @@
-import {ObjectId, WithId} from "mongodb";
+import {ObjectId} from "mongodb";
 
 export type DeviceType = {
     ip: string,
@@ -15,8 +15,13 @@ export type DeviceType_Id = {
     deviceId: string
 }
 
-export type DeviceTypeId = { userId: string } & Omit<DeviceType_Id, '_id'>
+export type DeviceTypeId = { userId: string } & DeviceType_Id
 
-
+export type DeviceLimitView = {
+    _id: ObjectId
+    ip: string | string[],
+    Url: string,
+    date: Date
+}
 
 
