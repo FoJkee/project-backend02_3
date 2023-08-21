@@ -25,7 +25,7 @@ export const deviceMiddleware = async (req: Request, res: Response, next: NextFu
 
     if (userApiByIP > 4) {
         res.status(429).json({errorsMessages: [{message: 'too many request'}]})
-        return
+
     }
     next()
 }
