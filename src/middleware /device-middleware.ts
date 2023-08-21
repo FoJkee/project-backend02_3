@@ -23,7 +23,7 @@ export const deviceMiddleware = async (req: Request, res: Response, next: NextFu
 
     const userApiByIP = await limitCollection.countDocuments(filter)
 
-    if (userApiByIP > 5) {
+    if (userApiByIP > 4) {
         res.status(429).json({errorsMessages: [{message: 'too many request'}]})
         return
     }
