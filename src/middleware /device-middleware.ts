@@ -6,13 +6,15 @@ import {devicesCollection} from "../db";
 export const deviceMiddleware = async (req: Request, res: Response, next: NextFunction) => {
 
     const newDevice = {
+        _id: new ObjectId(),
         IP: req.headers['x-forwarded-for'] || req.socket.remoteAddress || null,
         URL: req.baseUrl || req.originalUrl,
         date: new Date()
     }
 
     const filter = {
-        IP: newDevice.IP, URL: newDevice.URL,
+        IP: newDevice.IP,
+        URL: newDevice.URL,
         date: {$gte: new Date(Date.now() - 10000)}
     }
 
@@ -23,5 +25,5 @@ export const deviceMiddleware = async (req: Request, res: Response, next: NextFu
         return
     }
 
-   return  next()
+   next()
 }

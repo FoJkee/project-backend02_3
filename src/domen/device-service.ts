@@ -3,8 +3,7 @@ import {devicesCollection} from "../db";
 import {ObjectId} from "mongodb";
 import {randomUUID} from "crypto";
 import {deviceRepo} from "../repository/device-repo";
-import {jwtService} from "../application/jwt-service";
-import {id} from "date-fns/locale";
+
 
 
 
@@ -20,10 +19,10 @@ export const deviceService = {
         // const lastActiveDate = await jwtService.getDeviceRefreshToken(tokens.refreshToken)
 
         const newDevice: DeviceType_Id = {
+            deviceId,
             ip,
-            title,
             lastActiveDate: new Date().toString(),
-            deviceId
+            title
         }
         return await deviceRepo.deviceCreate(newDevice)
     },
@@ -33,10 +32,10 @@ export const deviceService = {
         const devices = await devicesCollection.find({}).toArray()
 
             return devices.map(el => ({
+                deviceId: el.deviceId,
                 ip: el.ip,
-                title: el.title,
                 lastActiveDate: el.lastActiveDate,
-                deviceId: el.deviceId
+                title: el.title
             }))
 
     },

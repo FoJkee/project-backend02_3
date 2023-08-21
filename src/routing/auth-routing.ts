@@ -50,7 +50,7 @@ authRouter.post('/registration-email-resending', deviceMiddleware, errorsMiddlew
 authRouter.post('/refresh-token', verifyUserToken, async (req: Request, res: Response) => {
 //refreshToken(userId, deviceId)
 
-    const newToken = await jwtService.createJwt(new ObjectId(req.user!.id), req.user!.deviceId!)
+    const newToken = await jwtService.createJwt(new ObjectId(req.user!.id), req.user?.deviceId!)
     res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
     return res.status(200).json({accessToken: newToken.accessToken})
 })
