@@ -6,7 +6,6 @@ import {devicesCollection} from "../db";
 export const deviceMiddleware = async (req: Request, res: Response, next: NextFunction) => {
 
     const newDevice = {
-        _id: ObjectId,
         IP: req.headers['x-forwarded-for'] || req.socket.remoteAddress || null,
         URL: req.baseUrl || req.originalUrl,
         date: new Date()
@@ -24,5 +23,5 @@ export const deviceMiddleware = async (req: Request, res: Response, next: NextFu
         return
     }
 
-    next()
+   return  next()
 }

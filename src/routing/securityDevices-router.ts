@@ -13,7 +13,7 @@ securityRouter.get('/', verifyUserToken, async (req: Request, res: Response) => 
 })
 
 securityRouter.delete('/', verifyUserToken, async (req: Request, res: Response) => {
-await deviceService.deviceDeleteAllActiveSession(req.params.userId ,req.user?.deviceId!)
+await deviceService.deviceDeleteAllActiveSession(req.user?.id! ,req.user?.deviceId!)
     return res.sendStatus(204)
 
 })

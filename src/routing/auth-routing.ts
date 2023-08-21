@@ -20,7 +20,7 @@ const errorFunc = (...args: string[]) => {
 }
 export const authRouter = Router({})
 
-authRouter.post('/registration-confirmation', errorsMiddleware,
+authRouter.post('/registration-confirmation', deviceMiddleware, errorsMiddleware,
     async (req: Request, res: Response) => {
 
         const result = await userService.confirmCode(req.body.code)
@@ -33,13 +33,13 @@ authRouter.post('/registration-confirmation', errorsMiddleware,
 
     })
 
-authRouter.post('/registration', userMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
+authRouter.post('/registration', deviceMiddleware, userMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
 
     const user = await userService.createUser(req.body.login, req.body.password, req.body.email)
     return res.sendStatus(204)
 })
 
-authRouter.post('/registration-email-resending', errorsMiddleware, async (req: Request, res: Response) => {
+authRouter.post('/registration-email-resending', deviceMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
 
     const resendEmail = await userService.createNewEmailConfirmation(req.body.email)
     if (!resendEmail) return res.status(400).json(errorFunc('email'))
@@ -49,8 +49,8 @@ authRouter.post('/registration-email-resending', errorsMiddleware, async (req: R
 
 authRouter.post('/refresh-token', verifyUserToken, async (req: Request, res: Response) => {
 //refreshToken(userId, deviceId)
-    const newToken = await jwtService.createJwt(new ObjectId(req.user!.id), req.user?.deviceId!)
 
+    const newToken = await jwtService.createJwt(new ObjectId(req.user!.id), req.user!.deviceId!)
     res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
     return res.status(200).json({accessToken: newToken.accessToken})
 })
@@ -64,7 +64,6 @@ authRouter.post('/login', deviceMiddleware, authPassMiddleware, errorsMiddleware
     if (loginUser) {
         const device = await deviceService.createDevice(req.ip, title)
         const token = await jwtService.createJwt(loginUser._id, device.deviceId)
-
         res.cookie('refreshToken', token.refreshToken, {httpOnly: true, secure: true})
         res.status(200).json({accessToken: token.accessToken})
     } else {
@@ -74,6 +73,7 @@ authRouter.post('/login', deviceMiddleware, authPassMiddleware, errorsMiddleware
 
 authRouter.post('/logout', verifyUserToken, async (req: Request, res: Response) => {
 
+    await deviceService.deviceGetId(req.user?.deviceId!)
     return res.clearCookie('refreshToken').sendStatus(204)
 
 })

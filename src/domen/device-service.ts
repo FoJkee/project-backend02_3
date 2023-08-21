@@ -3,6 +3,8 @@ import {devicesCollection} from "../db";
 import {ObjectId} from "mongodb";
 import {randomUUID} from "crypto";
 import {deviceRepo} from "../repository/device-repo";
+import {jwtService} from "../application/jwt-service";
+import {id} from "date-fns/locale";
 
 
 
@@ -10,9 +12,12 @@ export const deviceService = {
 
     async createDevice(ip: string, title: string) {
         const deviceId = randomUUID()
+
          // const tokens //jwtService.createTokens
         // const lastActiveDate // jwtService.decode(tokens.refreshToken) 1578514
-
+        //
+        // const tokens = await jwtService.createJwt(new ObjectId(id), token)
+        // const lastActiveDate = await jwtService.getDeviceRefreshToken(tokens.refreshToken)
 
         const newDevice: DeviceType_Id = {
             ip,
@@ -21,7 +26,6 @@ export const deviceService = {
             deviceId
         }
         return await deviceRepo.deviceCreate(newDevice)
-        // return tokens
     },
 
     async deviceGet(): Promise<DeviceType_Id[]> {
@@ -36,7 +40,6 @@ export const deviceService = {
             }))
 
     },
-
 
     async deviceGetId(id: string): Promise<DeviceTypeId | null> {
         const findDevId = await devicesCollection.findOne({_id: new ObjectId(id)})
