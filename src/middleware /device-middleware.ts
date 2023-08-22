@@ -1,5 +1,5 @@
 import {NextFunction, Request, Response} from "express";
-import {Filter, ObjectId} from "mongodb";
+import {ObjectId} from "mongodb";
 import {limitCollection} from "../db";
 import {DeviceLimitView} from "../types/device-type";
 
@@ -23,7 +23,7 @@ export const deviceMiddleware = async (req: Request, res: Response, next: NextFu
 
     const userApiByIP = await limitCollection.countDocuments(filter)
 
-    if (userApiByIP > 4) {
+    if (userApiByIP > 5) {
         res.status(429).json({errorsMessages: [{message: 'too many request'}]})
 
     }

@@ -1,7 +1,7 @@
-import {ObjectId} from "mongodb";
+import {ObjectId, WithId} from "mongodb";
 
 export type UserType_Id = {
-    _id: ObjectId,
+
     login: string,
     email: string,
     passwordHash: string,
@@ -11,9 +11,11 @@ export type UserType_Id = {
         confirmationCode: string,
         expirationDate: Date,
         isConfirmed: boolean,
+    },
 
-    }
 }
+
+
 
 export type UserTypeId = { id: string, deviceId?: string } & Omit<UserType_Id, "_id" | 'passwordHash' |
     'passwordSalt' | 'emailConfirmation'>

@@ -1,8 +1,8 @@
 import dotenv from 'dotenv'
-import {MongoClient} from "mongodb";
+import {MongoClient, WithId} from "mongodb";
 import {BlogType_Id} from "./types/blog-type";
 import {PostType_Id} from "./types/post-type";
-import {UserType_Id} from "./types/user-type";
+import {UserType_Id, UserTypeId} from "./types/user-type";
 import {CommentType_Id} from "./types/comment-type";
 import {TokenView} from "./types/token-type";
 import {DeviceLimitView, DeviceType} from "./types/device-type";

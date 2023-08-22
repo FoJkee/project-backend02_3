@@ -8,7 +8,6 @@ import add from "date-fns/add";
 import {emailAdapters} from "../adapters/email-adapters";
 import { userCollection} from "../db";
 import {randomUUID} from "crypto";
-import {deviceService} from "./device-service";
 
 
 
@@ -23,15 +22,15 @@ export const userService = {
     },
 
     async checkCredentials(loginOrEmail: string, password: string) {
-        const user = await userRepository. findLoginOrEmail(loginOrEmail)
-        if (!user) return null
+        const user = await userRepository.findLoginOrEmail(loginOrEmail)
+        if (!user) {
+           return  null
+        }
 
         const passwordHash = await this._generateHash(password, user.passwordSalt)
         if (user.passwordHash !== passwordHash) {
-            return false
+            return null
         }
-
-
 
         return user
     },
@@ -41,7 +40,7 @@ export const userService = {
         const passwordSalt = await bcrypt.genSalt(10)
         const passwordHash = await this._generateHash(password, passwordSalt)
         const code = uuidv4()
-        const userNew: UserType_Id = {
+        const userNew = {
             _id: new ObjectId(),
             login,
             email,
@@ -64,7 +63,7 @@ export const userService = {
 
         } catch (error) {
             console.error(error)
-            await userRepository.deleteUserId(userNew!._id)
+            await userRepository.deleteUserId(userNew._id)
             return null
         }
         return createResult
@@ -119,7 +118,8 @@ export const userService = {
 
         return user
 
-    }
+    },
+
 
 
 

@@ -92,7 +92,7 @@ export const userRepository = {
 
     async getMe(): Promise<UserMe | null> {
 
-        const getUser = await userCollection.findOne()
+        const getUser = await userCollection.findOne({})
 
         if (getUser) {
             return {
@@ -101,9 +101,9 @@ export const userRepository = {
                 userId: getUser._id.toString()
             }
         } else {
-                return null
-            }
-        },
+            return null
+        }
+    },
 
     async findLoginOrEmail(loginOrEmail: string) {
         const user = await userCollection.findOne({

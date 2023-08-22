@@ -1,33 +1,21 @@
 import jwt from 'jsonwebtoken'
-import {ObjectId} from "mongodb";
 import {jwtAccess, jwtRefresh} from "../db";
-import {de} from "date-fns/locale";
-
+import {TokenPayload} from "../types/token-type";
+import {ObjectId} from "mongodb";
 
 
 export const jwtService = {
 
-    async createJwt(id: ObjectId, deviceId: string) {
-
-
-        const accessToken: string = jwt.sign({user: id}, jwtAccess, {expiresIn: "10s"})
-
-        const refreshToken: string = jwt.sign({user: id, deviceId}, jwtRefresh, {expiresIn: "20s"})
-
-        return {
-            accessToken, refreshToken
-        }
+    async createAccessToken(id: ObjectId) {
+        return jwt.sign({user: id}, jwtAccess, {expiresIn: "10s"})
 
     },
 
-    // async getDeviceRefreshToken(refreshToken: string){
-    //     const decoded = await jwt.decode(refreshToken)
-    //     console.log("decoded",decoded)
-    //
-    //     return decoded
-    //
-    //
-    // },
+    async createRefreshToken(id: ObjectId, deviceId: string) {
+
+        return jwt.sign({user: id, deviceId}, jwtRefresh, {expiresIn: "20s"})
+
+    },
 
 
     async getUserByAccessToken(token: string) {
@@ -40,12 +28,29 @@ export const jwtService = {
         }
     },
 
-    async getUserByRefreshToken(token: string) {
+    async getUserByRefreshToken(token: string): Promise<TokenPayload | null> {
         try {
             const result: any = jwt.verify(token, jwtRefresh)
-            return result.user
-        } catch (error) {
+            return {
+                userId: result.userId,
+                deviceId: result.deviceId,
+            }
+        } catch {
             return null
         }
     }
+
+}
+
+export const jstPayload = (refreshToken: string): {
+    userId: string, deviceId: string, iat: string
+} | null => {
+    try {
+        return JSON.parse(Buffer.from(refreshToken.split('.')[1],
+            'base64url').toString())
+
+    } catch {
+        return null
+    }
+
 }
