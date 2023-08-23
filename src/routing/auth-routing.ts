@@ -1,5 +1,5 @@
 import {Request, Response, Router} from "express";
-import {jwtService} from "../application/jwt-service";
+import {jstPayload, jwtService} from "../application/jwt-service";
 import {authPassMiddleware} from "../middleware /authpass-middleware";
 import {errorsMiddleware} from "../middleware /errors-middleware";
 import {userRepository} from "../repository/user-repository";
@@ -11,6 +11,9 @@ import {verifyUserToken} from "../middleware /verifyUserToken";
 import {deviceMiddleware} from "../middleware /device-middleware";
 import {deviceService} from "../domen/device-service";
 import {tokenCollectionBlack} from "../db";
+import {deviceRepo} from "../repository/device-repo";
+import {randomUUID} from "crypto";
+import {UserType_Id, UserTypeId} from "../types/user-type";
 
 
 const errorFunc = (...args: string[]) => {
@@ -46,53 +49,84 @@ authRouter.post('/registration', deviceMiddleware, userMiddleware, errorsMiddlew
 
 authRouter.post('/registration-email-resending', deviceMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
 
-        const resendEmail = await userService.createNewEmailConfirmation(req.body.email)
-        if (!resendEmail) {
-            res.status(400).json(errorFunc('email'))
-            return
-        } else {
-            res.sendStatus(204)
-            return
-        }
-
+    const resendEmail = await userService.createNewEmailConfirmation(req.body.email)
+    if (!resendEmail) {
+        res.status(400).json(errorFunc('email'))
+        return
+    } else {
+        res.sendStatus(204)
+        return
+    }
 
 
 })
 
 authRouter.post('/refresh-token', verifyUserToken, async (req: Request, res: Response) => {
-//refreshToken(userId, deviceId)
 
-    const newToken = await jwtService.createJwt(new ObjectId(req.user!.id), req.user?.deviceId!)
-    res.cookie('refreshToken', newToken.refreshToken, {httpOnly: true, secure: true})
-    return res.status(200).json({accessToken: newToken.accessToken})
+    const deviceName = req.headers['user-agent'] || ''
+    const refreshToken = req.cookies.refreshToken
+
+    const payload = jstPayload(refreshToken)
+    const data = await jwtService.getUserByRefreshToken(refreshToken)
+
+    const user = await userRepository.getUserId(new ObjectId(data!.userId))
+
+    const accessToken = await jwtService.createAccessToken(new ObjectId(user!.id))
+    const newRefreshToken = await jwtService.createRefreshToken(new ObjectId(user!.id), payload!.deviceId)
+
+    const newPayload = jstPayload(newRefreshToken)
+
+    await deviceRepo.updateDevice(payload!.deviceId, {
+        deviceId: payload!.deviceId,
+        userId: user!.id,
+        ip: req.ip,
+        title: deviceName,
+        lastActiveDate: new Date(newPayload!.iat).toISOString()
+    })
+
+
+    res.cookie('refreshToken', newRefreshToken, {httpOnly: true, secure: true})
+    res.status(200).json({accessToken: accessToken})
+    return
+
 })
 
 authRouter.post('/login', deviceMiddleware, authPassMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
+
     const deviceName = req.headers['user-agent'] || ''
-    // const loginIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'undefined'
+    const deviceId = randomUUID()
 
     const loginUser = await userService.checkCredentials(req.body.loginOrEmail,
         req.body.password)
 
-    if (loginUser) {
-        const device = await deviceService.createDevice(req.ip, deviceName)
-        const token = await jwtService.createJwt(loginUser._id, device.deviceId)
-        res.cookie('refreshToken', token.refreshToken, {httpOnly: true, secure: true})
-        res.status(200).json({accessToken: token.accessToken})
-    } else {
+    if (!loginUser) {
         res.sendStatus(401)
         return
     }
+
+    if (loginUser) {
+        const accessToken = await jwtService.createAccessToken(loginUser._id)
+        const refreshToken = await jwtService.createRefreshToken(loginUser._id, deviceId)
+
+        await deviceService.createDevice(req.ip, deviceName, deviceId)
+
+        res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})
+        res.status(200).json({accessToken: accessToken})
+    }
 })
 
-authRouter.post('/logout', verifyUserToken, async (req: Request, res: Response) => {
 
-    await deviceService.deviceGetId(req.user?.deviceId!)
+authRouter.post('/logout', verifyUserToken, async (req: Request, res: Response) => {
+    const refreshToken = req.cookies.refreshToken
+    const tokenData = await jwtService.getUserByRefreshToken(refreshToken)
+    await deviceService.deleteSession(tokenData!.deviceId)
     return res.clearCookie('refreshToken').sendStatus(204)
 
 })
 
 authRouter.get('/me', authBearerMiddleware, async (req: Request, res: Response) => {
+    const user = await userService.getUserId(new ObjectId(req.user!.id))
+    if (!user) return res.sendStatus(401)
 
     const userMe = await userRepository.getMe()
     return res.status(200).json(userMe)
