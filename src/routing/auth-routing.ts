@@ -107,7 +107,7 @@ authRouter.post('/login', deviceMiddleware, authPassMiddleware, errorsMiddleware
         const accessToken = await jwtService.createAccessToken(loginUser._id)
         const refreshToken = await jwtService.createRefreshToken(loginUser._id, deviceId)
 
-        await deviceService.createDevice(req.ip, deviceName, deviceId)
+        await deviceService.createDevice(loginUser._id.toString(), req.ip, deviceName, deviceId)
 
         res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})
         res.status(200).json({accessToken: accessToken})

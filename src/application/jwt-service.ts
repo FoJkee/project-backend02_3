@@ -32,7 +32,7 @@ export const jwtService = {
         try {
             const result: any = jwt.verify(token, jwtRefresh)
             return {
-                userId: result.userId,
+                userId: result.user,
                 deviceId: result.deviceId,
             }
         } catch {
@@ -43,6 +43,7 @@ export const jwtService = {
 }
 
 export const jstPayload = (refreshToken: string): {
+
     userId: string, deviceId: string, iat: string } | null => {
     try {
         return JSON.parse(Buffer.from(refreshToken.split('.')[1],

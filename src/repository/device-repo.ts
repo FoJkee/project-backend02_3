@@ -4,10 +4,10 @@ import {da} from "date-fns/locale";
 
 
 export const deviceRepo = {
-    async deviceCreate(newDevice: DeviceType_Id): Promise<DeviceTypeId>{
+    async deviceCreate(newDevice: DeviceTypeId): Promise<DeviceTypeId>{
 
         const createDeviceDb = await devicesCollection.insertOne(newDevice)
-
+//todo return void
         return {
             userId: createDeviceDb.insertedId.toString(),
             ip: newDevice.ip,

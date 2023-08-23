@@ -7,22 +7,27 @@ import {jwtService} from "../application/jwt-service";
 export const securityRouter = Router()
 
 
-securityRouter.get('/', async (req: Request, res: Response) => {
+securityRouter.get('/', verifyUserToken, async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken
-    const dataToken = await jwtService.getUserByRefreshToken(refreshToken)
-    const deviceGet = await deviceService.deviceGetId(dataToken!.userId)
+    if (!refreshToken) return res.sendStatus(401);
+    const dataToken = await jwtService.getUserByRefreshToken(refreshToken);
+    if (!dataToken?.userId && !dataToken?.deviceId) return res.sendStatus(401);
+
+    const deviceGet = await deviceService.deviceGet(dataToken.userId)
     return res.status(200).json(deviceGet)
 
 })
 
-securityRouter.delete('/', verifyUserToken, async (req: Request, res: Response) => {
+securityRouter.delete('/',verifyUserToken, async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken
+    if (!refreshToken) return res.sendStatus(401);
     const dataToken = await jwtService.getUserByRefreshToken(refreshToken)
-    await deviceService.deleteOtherSession(dataToken!.userId, dataToken!.deviceId)
+    if (!dataToken) return res.sendStatus(401);
+    await deviceService.deleteOtherSession(dataToken.userId, dataToken.deviceId)
     return res.sendStatus(204)
 })
 
-securityRouter.delete('/:deviceId', verifyUserToken, async (req: Request, res: Response) => {
+securityRouter.delete('/:deviceId',verifyUserToken, async (req: Request, res: Response) => {
     const deviceId = req.params.deviceId
     const refreshToken = req.cookies.refreshToken
 
@@ -32,7 +37,7 @@ securityRouter.delete('/:deviceId', verifyUserToken, async (req: Request, res: R
         res.sendStatus(404)
         return
     }
-    if (dataSession && dataSession.deviceId !== dataToken!.userId) {
+    if (dataSession && dataSession.deviceId !== dataToken!.deviceId) {
         res.sendStatus(403)
         return
     }

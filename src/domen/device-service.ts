@@ -9,21 +9,24 @@ import {promises} from "dns";
 
 export const deviceService = {
 
-    async createDevice(ip: string, title: string, deviceId: string):Promise<void> {
+    async createDevice(userId: string, ip: string, title: string, deviceId: string) {
 
         const newDevice = {
+            userId,
             ip,
             title,
-            lastActiveDate: new Date().toString(),
+            lastActiveDate: new Date().toISOString(),
             deviceId
         }
-         await deviceRepo.deviceCreate(newDevice)
+
+        await deviceRepo.deviceCreate(newDevice);
+        return;
     },
 
     async deviceGet(userId: string): Promise<DeviceType_Id[]> {
-
+console.log('userId:', userId)
         const devices = await devicesCollection.find({userId}).toArray()
-
+console.log('SERVICE:', devices);
         return devices.map(el => ({
             deviceId: el.deviceId,
             ip: el.ip,
@@ -33,21 +36,21 @@ export const deviceService = {
 
     },
 
-    async deviceGetId(userId: string): Promise<DeviceType_Id | null> {
-        const findDevId = await devicesCollection.findOne({userId})
-
-        if (findDevId) {
-            return {
-                deviceId: findDevId.deviceId,
-                ip: findDevId.ip,
-                lastActiveDate: new Date().toString(),
-                title: findDevId.title
-            }
-        } else {
-            return null
-        }
-
-    },
+    // async deviceGetId(userId: string): Promise<DeviceType_Id | null> {
+    //     const findDevId = await devicesCollection.findOne({userId})
+    //
+    //     if (findDevId) {
+    //         return {
+    //             deviceId: findDevId.deviceId,
+    //             ip: findDevId.ip,
+    //             lastActiveDate: new Date().toString(),
+    //             title: findDevId.title
+    //         }
+    //     } else {
+    //         return null
+    //     }
+    //
+    // },
 
 
     async sessionDevice(deviceId: string){

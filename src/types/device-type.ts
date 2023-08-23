@@ -1,6 +1,7 @@
 import {ObjectId} from "mongodb";
 
 export type DeviceType = {
+    userId: string,
     ip: string,
     title: string,
     lastActiveDate: string,

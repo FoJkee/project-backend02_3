@@ -109,7 +109,7 @@ export const userRepository = {
         const user = await userCollection.findOne({
             $or: [{login: loginOrEmail}, {email: loginOrEmail}]
         })
-        return user
+        return user//->{_id(ObjectId)}  return{id: user._id.toString(), login: , email,   ...}
     },
 
     async updateConfirmation(id: ObjectId) {
