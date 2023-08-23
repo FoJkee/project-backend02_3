@@ -34,22 +34,6 @@ console.log('SERVICE:', devices);
 
     },
 
-    // async deviceGetId(userId: string): Promise<DeviceType_Id | null> {
-    //     const findDevId = await devicesCollection.findOne({userId})
-    //
-    //     if (findDevId) {
-    //         return {
-    //             deviceId: findDevId.deviceId,
-    //             ip: findDevId.ip,
-    //             lastActiveDate: new Date().toString(),
-    //             title: findDevId.title
-    //         }
-    //     } else {
-    //         return null
-    //     }
-    //
-    // },
-
 
     async sessionDevice(deviceId: string){
         return deviceRepo.sessionDevice(deviceId)

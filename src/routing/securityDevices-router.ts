@@ -7,7 +7,7 @@ import {jwtService} from "../application/jwt-service";
 export const securityRouter = Router()
 
 
-securityRouter.get('/', verifyUserToken, async (req: Request, res: Response) => {
+securityRouter.get('/', async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken
     if (!refreshToken) return res.sendStatus(401);
     const dataToken = await jwtService.getUserByRefreshToken(refreshToken);
@@ -18,7 +18,7 @@ securityRouter.get('/', verifyUserToken, async (req: Request, res: Response) => 
 
 })
 
-securityRouter.delete('/', verifyUserToken, async (req: Request, res: Response) => {
+securityRouter.delete('/', async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken
     if (!refreshToken) return res.sendStatus(401);
     const dataToken = await jwtService.getUserByRefreshToken(refreshToken)
@@ -27,7 +27,7 @@ securityRouter.delete('/', verifyUserToken, async (req: Request, res: Response) 
     return res.sendStatus(204)
 })
 
-securityRouter.delete('/:deviceId', verifyUserToken, async (req: Request, res: Response) => {
+securityRouter.delete('/:deviceId', async (req: Request, res: Response) => {
     const deviceId = req.params.deviceId
     const refreshToken = req.cookies.refreshToken
 

@@ -120,7 +120,7 @@ authRouter.post('/login', deviceMiddleware, authPassMiddleware, errorsMiddleware
 authRouter.post('/logout', async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken
     const tokenData = await jwtService.getUserByRefreshToken(refreshToken)
-    if(!tokenData) return res.sendStatus(401)
+    if (!tokenData) return res.sendStatus(401)
     await deviceService.deleteSession(tokenData.deviceId)
     return res.clearCookie('refreshToken').sendStatus(204)
 
