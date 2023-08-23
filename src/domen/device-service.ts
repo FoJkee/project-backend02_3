@@ -2,21 +2,23 @@ import {DeviceType_Id, DeviceTypeId} from "../types/device-type";
 import {devicesCollection} from "../db";
 
 import {deviceRepo} from "../repository/device-repo";
+import exp from "constants";
+import {jwtService} from "../application/jwt-service";
 
 
 export const deviceService = {
 
-    async createDevice(userId: string, ip: string, title: string, deviceId: string) {
+    async createDevice(userId: string, ip: string, title: string, deviceId: string, lastActiveDate: string) {
 
         const newDevice = {
             userId,
             ip,
             title,
-            lastActiveDate: new Date().toString(),
+            lastActiveDate,
             deviceId
         }
 
-        await deviceRepo.deviceCreate(newDevice);
+         await deviceRepo.deviceCreate(newDevice);
         return;
     },
 

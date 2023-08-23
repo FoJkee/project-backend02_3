@@ -6,4 +6,5 @@ export type TokenView = {
 export type TokenPayload = {
     userId: string,
     deviceId: string,
+    iat: string
 }

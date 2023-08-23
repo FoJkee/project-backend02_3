@@ -9,6 +9,7 @@ import {authRouter} from "./routing/auth-routing";
 import {commentRouter} from "./routing/comment-routing";
 import cookieParser from 'cookie-parser'
 import {securityRouter} from "./routing/securityDevices-router";
+import jwt from "jsonwebtoken";
 
 const app = express()
 
@@ -39,6 +40,13 @@ app.get('/', (req: Request, res: Response) => {
 
 
 const startApp = async () => {
+    const token = jwt.sign({userId: 1}, '1')
+    const payload: any = jwt.decode(token)
+    console.log("payload", payload)
+    console.log(new Date(payload!.iat * 1000))
+    console.log(Date.now() - 10000)
+
+
 
     await runDb()
     app.listen(port, () => {

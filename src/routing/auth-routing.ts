@@ -7,7 +7,6 @@ import {authBearerMiddleware} from "../middleware /authbearer-middleware";
 import {userService} from "../domen/user-service";
 import {userMiddleware} from "../middleware /user-middleware";
 import {ObjectId} from "mongodb";
-import {verifyUserToken} from "../middleware /verifyUserToken";
 import {deviceMiddleware} from "../middleware /device-middleware";
 import {deviceService} from "../domen/device-service";
 import {tokenCollectionBlack} from "../db";
@@ -83,7 +82,7 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
         userId: user.id,
         ip: req.ip,
         title: deviceName,
-        lastActiveDate: new Date(newPayload!.iat).toString()
+        lastActiveDate: new Date(newPayload!.iat).toISOString()
     })
 
     res.cookie('refreshToken', newRefreshToken, {httpOnly: true, secure: true})
@@ -109,7 +108,8 @@ authRouter.post('/login', deviceMiddleware, authPassMiddleware, errorsMiddleware
         const accessToken = await jwtService.createAccessToken(loginUser._id)
         const refreshToken = await jwtService.createRefreshToken(loginUser._id, deviceId)
 
-        await deviceService.createDevice(loginUser._id.toString(), req.ip, deviceName, deviceId)
+const lastActiveDate = await jwtService.getLastActiveDateFromToken(refreshToken)
+        await deviceService.createDevice(loginUser._id.toString(), req.ip, deviceName, deviceId, lastActiveDate)
 
         res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})
         res.status(200).json({accessToken: accessToken})
