@@ -9,10 +9,9 @@ import {promises} from "dns";
 
 export const deviceService = {
 
-    async createDevice(ip: string, title: string, userId: string, deviceId: string):Promise<void> {
+    async createDevice(ip: string, title: string, deviceId: string):Promise<void> {
 
         const newDevice = {
-            userId,
             ip,
             title,
             lastActiveDate: new Date().toString(),
@@ -34,11 +33,10 @@ export const deviceService = {
 
     },
 
-    async deviceGetId(userId: string): Promise<DeviceTypeId | null> {
+    async deviceGetId(userId: string): Promise<DeviceType_Id | null> {
         const findDevId = await devicesCollection.findOne({_id: new ObjectId(userId)})
         if (findDevId) {
             return {
-                userId: findDevId._id.toString(),
                 deviceId: findDevId.deviceId,
                 ip: findDevId.ip,
                 lastActiveDate: new Date().toString(),
@@ -50,22 +48,17 @@ export const deviceService = {
 
     },
 
-    async deviceDeleteAllActiveSession(id: string, deviceId: string): Promise<boolean> {
-        return deviceRepo.deviceDeleteAllActiveSession(id, deviceId)
-    },
 
-    async deviceDeleteId(deviceId: string) {
-        const deviceDelId = await devicesCollection.deleteOne({userId: new ObjectId(deviceId)})
-        return deviceDelId.deletedCount === 1
-
-    },
-
-    async updateDevice(deviceId: string, data: DeviceTypeId) {
-        return deviceRepo.updateDevice(deviceId, data)
+    async sessionDevice(deviceId: string){
+        return deviceRepo.sessionDevice(deviceId)
     },
 
     async deleteSession(deviceId: string){
         return deviceRepo.deleteSession(deviceId)
+    },
+
+    async deleteOtherSession(userId: string, deviceId: string){
+        return deviceRepo.deleteOtherSession(userId, deviceId)
     }
 
 

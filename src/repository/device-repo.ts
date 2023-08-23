@@ -4,7 +4,7 @@ import {da} from "date-fns/locale";
 
 
 export const deviceRepo = {
-    async deviceCreate(newDevice: DeviceTypeId){
+    async deviceCreate(newDevice: DeviceType_Id): Promise<DeviceTypeId>{
 
         const createDeviceDb = await devicesCollection.insertOne(newDevice)
 
@@ -40,6 +40,16 @@ export const deviceRepo = {
         return result.deletedCount === 1
     },
 
+    async deleteOtherSession(userId: string, deviceId: string){
+        const delOtSes = await devicesCollection.deleteMany({userId, deviceId: {$ne: deviceId}})
+        return delOtSes.deletedCount === 1
+    },
+
+
+
+    async sessionDevice(deviceId: string){
+        return devicesCollection.findOne({deviceId})
+    }
 
 
 
