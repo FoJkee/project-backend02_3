@@ -20,9 +20,9 @@ export const deviceService = {
          await deviceRepo.deviceCreate(newDevice)
     },
 
-    async deviceGet(): Promise<DeviceType_Id[]> {
+    async deviceGet(userId: string): Promise<DeviceType_Id[]> {
 
-        const devices = await devicesCollection.find({}).toArray()
+        const devices = await devicesCollection.find({userId}).toArray()
 
         return devices.map(el => ({
             deviceId: el.deviceId,
@@ -33,10 +33,11 @@ export const deviceService = {
 
     },
 
-    async deviceGetId(userId: string): Promise<DeviceType_Id | null> {
-        const findDevId = await devicesCollection.findOne({_id: new ObjectId(userId)})
+    async deviceGetId(Id: string): Promise<DeviceTypeId | null> {
+        const findDevId = await devicesCollection.findOne({_id: new ObjectId(Id)})
         if (findDevId) {
             return {
+                userId: findDevId._id.toString(),
                 deviceId: findDevId.deviceId,
                 ip: findDevId.ip,
                 lastActiveDate: new Date().toString(),

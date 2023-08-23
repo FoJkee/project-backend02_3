@@ -7,13 +7,13 @@ import {ObjectId} from "mongodb";
 export const jwtService = {
 
     async createAccessToken(id: ObjectId) {
-        return jwt.sign({user: id}, jwtAccess, {expiresIn: "10s"})
+        return jwt.sign({user: id}, jwtAccess, {expiresIn: "100s"})
 
     },
 
     async createRefreshToken(id: ObjectId, deviceId: string) {
 
-        return jwt.sign({user: id, deviceId}, jwtRefresh, {expiresIn: "20s"})
+        return jwt.sign({user: id, deviceId}, jwtRefresh, {expiresIn: "200s"})
 
     },
 

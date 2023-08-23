@@ -13,7 +13,6 @@ import {deviceService} from "../domen/device-service";
 import {tokenCollectionBlack} from "../db";
 import {deviceRepo} from "../repository/device-repo";
 import {randomUUID} from "crypto";
-import {UserType_Id, UserTypeId} from "../types/user-type";
 
 
 const errorFunc = (...args: string[]) => {
