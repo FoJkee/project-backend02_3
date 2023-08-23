@@ -83,7 +83,7 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
         userId: user.id,
         ip: req.ip,
         title: deviceName,
-        lastActiveDate: new Date(newPayload!.iat).toString()
+        lastActiveDate: new Date(newPayload!.iat).toISOString()
     })
 
     res.cookie('refreshToken', newRefreshToken, {httpOnly: true, secure: true})
@@ -117,7 +117,7 @@ authRouter.post('/login', deviceMiddleware, authPassMiddleware, errorsMiddleware
 })
 
 
-authRouter.post('/logout', verifyUserToken, async (req: Request, res: Response) => {
+authRouter.post('/logout', async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken
     const tokenData = await jwtService.getUserByRefreshToken(refreshToken)
     if(!tokenData) return res.sendStatus(401)
