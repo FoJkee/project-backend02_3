@@ -1,6 +1,5 @@
 import {Request, Response, Router} from "express";
 import {deviceService} from "../domen/device-service";
-import {verifyUserToken} from "../middleware /verifyUserToken";
 import {jwtService} from "../application/jwt-service";
 
 
@@ -23,8 +22,13 @@ securityRouter.delete('/', async (req: Request, res: Response) => {
     if (!refreshToken) return res.sendStatus(401);
     const dataToken = await jwtService.getUserByRefreshToken(refreshToken)
     if (!dataToken) return res.sendStatus(401);
-    await deviceService.deleteOtherSession(dataToken.userId, dataToken.deviceId)
-    return res.sendStatus(204)
+    const deleteOtherSession = await deviceService.deleteOtherSession(dataToken.userId, dataToken.deviceId)
+    if (deleteOtherSession) {
+        return res.sendStatus(204)
+    } else {
+        return res.sendStatus(204)
+    }
+
 })
 
 securityRouter.delete('/:deviceId', async (req: Request, res: Response) => {
@@ -37,6 +41,7 @@ securityRouter.delete('/:deviceId', async (req: Request, res: Response) => {
         res.sendStatus(404)
         return
     }
+
     if (dataSession && dataSession.deviceId !== dataToken!.deviceId) {
         res.sendStatus(403)
         return
@@ -46,7 +51,9 @@ securityRouter.delete('/:deviceId', async (req: Request, res: Response) => {
     if (!deleteSession) {
         res.sendStatus(404)
         return
+    } else {
+       return res.sendStatus(204)
     }
-    res.sendStatus(204)
+
 
 })

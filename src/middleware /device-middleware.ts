@@ -8,8 +8,8 @@ export const deviceMiddleware = async (req: Request, res: Response, next: NextFu
 
     const newDevice: DeviceLimitView = {
         _id: new ObjectId(),
-        ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'undefined',
-        Url: req.baseUrl || req.originalUrl,
+        ip: req.ip,
+        Url: req.baseUrl + req.url || req.originalUrl,
         date: new Date()
     }
 
