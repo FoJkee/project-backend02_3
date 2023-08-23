@@ -83,7 +83,7 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
         userId: user.id,
         ip: req.ip,
         title: deviceName,
-        lastActiveDate: new Date(newPayload!.iat).toISOString()
+        lastActiveDate: new Date(newPayload!.iat).toString()
     })
 
     res.cookie('refreshToken', newRefreshToken, {httpOnly: true, secure: true})

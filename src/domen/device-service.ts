@@ -12,7 +12,7 @@ export const deviceService = {
             userId,
             ip,
             title,
-            lastActiveDate: new Date().toDateString(),
+            lastActiveDate: new Date().toString(),
             deviceId
         }
 
