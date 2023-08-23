@@ -1,9 +1,7 @@
 import {DeviceType_Id, DeviceTypeId} from "../types/device-type";
 import {devicesCollection} from "../db";
-import {ObjectId} from "mongodb";
-import {randomUUID} from "crypto";
+
 import {deviceRepo} from "../repository/device-repo";
-import {promises} from "dns";
 
 
 

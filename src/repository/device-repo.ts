@@ -7,7 +7,7 @@ export const deviceRepo = {
     async deviceCreate(newDevice: DeviceTypeId): Promise<DeviceTypeId>{
 
         const createDeviceDb = await devicesCollection.insertOne(newDevice)
-//todo return void
+
         return {
             userId: createDeviceDb.insertedId.toString(),
             ip: newDevice.ip,
@@ -23,10 +23,7 @@ export const deviceRepo = {
     },
 
 
-    async deviceDeleteAllActiveSession(userId: string, deviceId: string){
-        const deviceDel = await devicesCollection.deleteMany({userId, deviceId: {$ne: deviceId}})
-        return deviceDel.deletedCount === 1
-    },
+
 
 
 

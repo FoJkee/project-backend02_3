@@ -79,7 +79,7 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     const newPayload = jstPayload(newRefreshToken)
 
     await deviceRepo.updateDevice(payload.deviceId, {
-        deviceId: payload!.deviceId,
+        deviceId: payload.deviceId,
         userId: user.id,
         ip: req.ip,
         title: deviceName,
