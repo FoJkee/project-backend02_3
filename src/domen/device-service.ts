@@ -15,7 +15,7 @@ export const deviceService = {
             userId,
             ip,
             title,
-            lastActiveDate: new Date().toISOString(),
+            lastActiveDate: new Date().toString(),
             deviceId
         }
 

@@ -60,29 +60,31 @@ authRouter.post('/registration-email-resending', deviceMiddleware, errorsMiddlew
 
 })
 
-authRouter.post('/refresh-token', verifyUserToken, async (req: Request, res: Response) => {
+authRouter.post('/refresh-token', async (req: Request, res: Response) => {
 
     const deviceName = req.headers['user-agent'] || ''
     const refreshToken = req.cookies.refreshToken
 
     const payload = jstPayload(refreshToken)
+    if (!payload) return res.sendStatus(401)
+
     const data = await jwtService.getUserByRefreshToken(refreshToken)
+    if (!data) return res.sendStatus(401)
+    const user = await userRepository.getUserId(new ObjectId(data.userId))
+    if (!user) return res.sendStatus(401)
 
-    const user = await userRepository.getUserId(new ObjectId(data!.userId))
-
-    const accessToken = await jwtService.createAccessToken(new ObjectId(user!.id))
-    const newRefreshToken = await jwtService.createRefreshToken(new ObjectId(user!.id), payload!.deviceId)
+    const accessToken = await jwtService.createAccessToken(new ObjectId(user.id))
+    const newRefreshToken = await jwtService.createRefreshToken(new ObjectId(user.id), payload.deviceId)
 
     const newPayload = jstPayload(newRefreshToken)
 
-    await deviceRepo.updateDevice(payload!.deviceId, {
+    await deviceRepo.updateDevice(payload.deviceId, {
         deviceId: payload!.deviceId,
-        userId: user!.id,
+        userId: user.id,
         ip: req.ip,
         title: deviceName,
         lastActiveDate: new Date(newPayload!.iat).toISOString()
     })
-
 
     res.cookie('refreshToken', newRefreshToken, {httpOnly: true, secure: true})
     res.status(200).json({accessToken: accessToken})
