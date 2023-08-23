@@ -33,11 +33,11 @@ export const deviceService = {
 
     },
 
-    async deviceGetId(userId: string): Promise<DeviceTypeId | null> {
+    async deviceGetId(userId: string): Promise<DeviceType_Id | null> {
         const findDevId = await devicesCollection.findOne({userId})
+
         if (findDevId) {
             return {
-                userId: findDevId._id.toString(),
                 deviceId: findDevId.deviceId,
                 ip: findDevId.ip,
                 lastActiveDate: new Date().toString(),

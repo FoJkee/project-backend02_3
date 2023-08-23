@@ -7,13 +7,13 @@ import {ObjectId} from "mongodb";
 export const jwtService = {
 
     async createAccessToken(id: ObjectId) {
-        return jwt.sign({user: id}, jwtAccess, {expiresIn: "100s"})
+        return jwt.sign({user: id}, jwtAccess, {expiresIn: "1000s"})
 
     },
 
     async createRefreshToken(id: ObjectId, deviceId: string) {
 
-        return jwt.sign({user: id, deviceId}, jwtRefresh, {expiresIn: "200s"})
+        return jwt.sign({user: id, deviceId}, jwtRefresh, {expiresIn: "2000s"})
 
     },
 
@@ -43,8 +43,7 @@ export const jwtService = {
 }
 
 export const jstPayload = (refreshToken: string): {
-    userId: string, deviceId: string, iat: string
-} | null => {
+    userId: string, deviceId: string, iat: string } | null => {
     try {
         return JSON.parse(Buffer.from(refreshToken.split('.')[1],
             'base64url').toString())
