@@ -10,7 +10,7 @@ export const securityRouter = Router()
 securityRouter.get('/', async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken
     const dataToken = await jwtService.getUserByRefreshToken(refreshToken)
-    const deviceGet = await deviceService.deviceGet(dataToken!.userId)
+    const deviceGet = await deviceService.deviceGetId(dataToken!.userId)
     return res.status(200).json(deviceGet)
 
 })
