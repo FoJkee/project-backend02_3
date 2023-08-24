@@ -32,10 +32,16 @@ securityRouter.delete('/', async (req: Request, res: Response) => {
 })
 
 securityRouter.delete('/:deviceId', async (req: Request, res: Response) => {
+
     const deviceId = req.params.deviceId
     const refreshToken = req.cookies.refreshToken
 
     const dataToken = await jwtService.getUserByRefreshToken(refreshToken)
+    if (!dataToken) {
+        res.sendStatus(401)
+        return
+    }
+
     const dataSession = await deviceService.sessionDevice(deviceId)
     if (!dataSession) {
         res.sendStatus(404)
@@ -52,7 +58,7 @@ securityRouter.delete('/:deviceId', async (req: Request, res: Response) => {
         res.sendStatus(404)
         return
     } else {
-       return res.sendStatus(204)
+        return res.sendStatus(204)
     }
 
 
