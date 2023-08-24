@@ -1,6 +1,5 @@
 import {devicesCollection} from "../db";
-import {DeviceType, DeviceType_Id, DeviceTypeId} from "../types/device-type";
-import {da} from "date-fns/locale";
+import {DeviceTypeId} from "../types/device-type";
 
 
 export const deviceRepo = {

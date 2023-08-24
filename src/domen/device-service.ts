@@ -18,14 +18,13 @@ export const deviceService = {
             deviceId
         }
 
-         await deviceRepo.deviceCreate(newDevice);
+        await deviceRepo.deviceCreate(newDevice);
         return;
     },
 
     async deviceGet(userId: string): Promise<DeviceType_Id[]> {
-console.log('userId:', userId)
         const devices = await devicesCollection.find({userId}).toArray()
-console.log('SERVICE:', devices);
+
         return devices.map(el => ({
             deviceId: el.deviceId,
             ip: el.ip,
@@ -36,15 +35,15 @@ console.log('SERVICE:', devices);
     },
 
 
-    async sessionDevice(deviceId: string){
+    async sessionDevice(deviceId: string) {
         return deviceRepo.sessionDevice(deviceId)
     },
 
-    async deleteSession(deviceId: string){
+    async deleteSession(deviceId: string) {
         return deviceRepo.deleteSession(deviceId)
     },
 
-    async deleteOtherSession(userId: string, deviceId: string){
+    async deleteOtherSession(userId: string, deviceId: string) {
         return deviceRepo.deleteOtherSession(userId, deviceId)
     }
 
