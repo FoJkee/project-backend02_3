@@ -40,7 +40,7 @@ securityRouter.delete('/:deviceId', async (req: Request, res: Response) => {
     if (!dataToken) {
         res.sendStatus(401)
         return
-    }
+    }2
 
     const dataSession = await deviceService.sessionDevice(deviceId)
     if (!dataSession) {
@@ -48,7 +48,7 @@ securityRouter.delete('/:deviceId', async (req: Request, res: Response) => {
         return
     }
 
-    if (dataSession && dataSession.deviceId !== dataToken!.deviceId) {
+    if (dataSession && dataSession.deviceId !== dataToken.deviceId) {
         res.sendStatus(403)
         return
     }
