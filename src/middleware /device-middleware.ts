@@ -5,7 +5,7 @@ import {DeviceLimitView} from "../types/device-type";
 
 
 export const deviceMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-
+    const currentDate = new Date();
     const newDevice: DeviceLimitView = {
         _id: new ObjectId(),
         ip: req.ip,

@@ -7,6 +7,7 @@ export const securityRouter = Router()
 
 
 securityRouter.get('/', async (req: Request, res: Response) => {
+
     const refreshToken = req.cookies.refreshToken
     if (!refreshToken) return res.sendStatus(401);
 

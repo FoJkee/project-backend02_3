@@ -1,5 +1,5 @@
 import {Request, Response, Router} from "express";
-import {jstPayload, jwtService} from "../application/jwt-service";
+import {jwtService} from "../application/jwt-service";
 import {authPassMiddleware} from "../middleware /authpass-middleware";
 import {errorsMiddleware} from "../middleware /errors-middleware";
 import {userRepository} from "../repository/user-repository";
@@ -9,7 +9,6 @@ import {userMiddleware} from "../middleware /user-middleware";
 import {ObjectId} from "mongodb";
 import {deviceMiddleware} from "../middleware /device-middleware";
 import {deviceService} from "../domen/device-service";
-import {tokenCollectionBlack} from "../db";
 import {deviceRepo} from "../repository/device-repo";
 import {randomUUID} from "crypto";
 
@@ -20,6 +19,8 @@ const errorFunc = (...args: string[]) => {
     }
 }
 export const authRouter = Router({})
+
+
 
 authRouter.post('/registration-confirmation', deviceMiddleware, errorsMiddleware,
     async (req: Request, res: Response) => {
@@ -68,11 +69,11 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     if (!user) return res.sendStatus(401)
 
     const accessToken = await jwtService.createAccessToken(new ObjectId(user.id))
-    const newRefreshToken = await jwtService.createRefreshToken(new ObjectId(user.id), user.deviceId!)
+    const newRefreshToken = await jwtService.createRefreshToken(new ObjectId(user.id), data.deviceId)
 
     const newPayload = await jwtService.getLastActiveDateFromToken(newRefreshToken)
 
-    await deviceRepo.updateDevice(user.deviceId!, user.id, newPayload, deviceName)
+    await deviceRepo.updateDevice(data.deviceId, user.id, newPayload, deviceName)
 
     res.cookie('refreshToken', newRefreshToken, {httpOnly: true, secure: true})
     res.status(200).json({accessToken: accessToken})
@@ -102,6 +103,8 @@ authRouter.post('/login', deviceMiddleware, authPassMiddleware, errorsMiddleware
 
             res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})
             res.status(200).json({accessToken: accessToken})
+        } else {
+            res.status(400).json(errorFunc('login'))
         }
     })
 
