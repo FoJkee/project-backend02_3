@@ -27,7 +27,6 @@ export const deviceRepo = {
         return devicesCollection.deleteMany({})
     },
 
-
     async deleteSession(deviceId: string){
         const result = await devicesCollection.deleteOne({deviceId})
         return result.deletedCount === 1
@@ -37,7 +36,6 @@ export const deviceRepo = {
         const delOtSes = await devicesCollection.deleteMany({userId, deviceId: {$ne: deviceId}})
         return delOtSes.deletedCount === 1
     },
-
 
     async sessionDevice(deviceId: string){
         return devicesCollection.findOne({deviceId})
