@@ -18,16 +18,15 @@ securityRouter.get('/', async (req: Request, res: Response) => {
 })
 
 securityRouter.delete('/', async (req: Request, res: Response) => {
+
     const refreshToken = req.cookies.refreshToken
     if (!refreshToken) return res.sendStatus(401);
+
     const dataToken = await jwtService.getUserByRefreshToken(refreshToken)
-    if (!dataToken) return res.sendStatus(401);
+    if (!dataToken) return res.sendStatus(401)
+
     const deleteOtherSession = await deviceService.deleteOtherSession(dataToken.userId, dataToken.deviceId)
-    if (deleteOtherSession) {
-        return res.sendStatus(204)
-    } else {
-        return res.sendStatus(204)
-    }
+    return res.sendStatus(204)
 
 })
 
@@ -37,10 +36,11 @@ securityRouter.delete('/:deviceId', async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken
 
     const dataToken = await jwtService.getUserByRefreshToken(refreshToken)
+
     if (!dataToken) {
         res.sendStatus(401)
         return
-    }2
+    }
 
     const dataSession = await deviceService.sessionDevice(deviceId)
     if (!dataSession) {
@@ -48,18 +48,17 @@ securityRouter.delete('/:deviceId', async (req: Request, res: Response) => {
         return
     }
 
-    if (dataSession && dataSession.deviceId !== dataToken.deviceId) {
+    if (dataSession && dataSession.userId !== dataToken.userId) {
         res.sendStatus(403)
         return
     }
 
     const deleteSession = deviceService.deleteSession(deviceId)
+
     if (!deleteSession) {
         res.sendStatus(404)
         return
-    } else {
-        return res.sendStatus(204)
     }
-
+    return res.sendStatus(204)
 
 })

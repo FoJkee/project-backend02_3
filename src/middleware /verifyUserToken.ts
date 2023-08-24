@@ -1,9 +1,7 @@
 import {NextFunction, Request, Response} from "express";
 import {jwtService} from "../application/jwt-service";
-import {authRepository} from "../repository/auth-repository";
 import {userService} from "../domen/user-service";
 import {ObjectId} from "mongodb";
-import {devicesCollection} from "../db";
 
 export const verifyUserToken = async (req: Request, res: Response, next: NextFunction) => {
 

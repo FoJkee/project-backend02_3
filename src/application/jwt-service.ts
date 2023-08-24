@@ -7,13 +7,13 @@ import {ObjectId} from "mongodb";
 export const jwtService = {
 
     async createAccessToken(id: ObjectId) {
-        return jwt.sign({user: id}, jwtAccess, {expiresIn: "10s"})
+        return jwt.sign({user: id}, jwtAccess, {expiresIn: "1000s"})
 
     },
 
     async createRefreshToken(id: ObjectId, deviceId: string) {
 
-        return jwt.sign({user: id, deviceId}, jwtRefresh, {expiresIn: "20s"})
+        return jwt.sign({user: id, deviceId}, jwtRefresh, {expiresIn: "2000s"})
 
     },
 
@@ -34,7 +34,6 @@ export const jwtService = {
             return {
                 userId: result.user,
                 deviceId: result.deviceId,
-                iat: result.iat
             }
         } catch {
             return null
@@ -47,8 +46,6 @@ export const jwtService = {
     }
 
 }
-
-
 
 
 export const jstPayload = (refreshToken: string): {
