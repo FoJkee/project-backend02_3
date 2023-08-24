@@ -35,7 +35,7 @@ authRouter.post('/registration-confirmation', deviceMiddleware, errorsMiddleware
 
     })
 //deviceMiddleware
-authRouter.post('/registration', userMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
+authRouter.post('/registration', deviceMiddleware, userMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
 
     const user = await userService.createUser(req.body.login, req.body.password, req.body.email)
     if (user) {

@@ -1,16 +1,17 @@
 import {NextFunction, Request, Response} from "express";
-import {ObjectId} from "mongodb";
 import {limitCollection} from "../db";
 import {DeviceLimitView} from "../types/device-type";
+import dateFns from 'date-fns/addSeconds'
 
 
 export const deviceMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     const currentDate = new Date();
+
     const newDevice: DeviceLimitView = {
-        _id: new ObjectId(),
+
         ip: req.ip,
         Url: req.baseUrl + req.url || req.originalUrl,
-        date: new Date()
+        date: currentDate
     }
 
     await limitCollection.insertOne(newDevice)
@@ -18,14 +19,14 @@ export const deviceMiddleware = async (req: Request, res: Response, next: NextFu
     const filter = {
         ip: newDevice.ip,
         Url: newDevice.Url,
-        date: {$gte: new Date(Date.now() - 10000)}
+        date: {$gte: dateFns(currentDate, -10)}
     }
 
     const userApiByIP = await limitCollection.countDocuments(filter)
 
     if (userApiByIP > 5) {
         res.status(429).json({errorsMessages: [{message: 'too many request'}]})
-
+        return
     }
     next()
 }

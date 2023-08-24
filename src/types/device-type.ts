@@ -19,7 +19,6 @@ export type DeviceType_Id = {
 export type DeviceTypeId = { userId: string } & DeviceType_Id
 
 export type DeviceLimitView = {
-    _id: ObjectId
     ip: string | string[],
     Url: string,
     date: Date
