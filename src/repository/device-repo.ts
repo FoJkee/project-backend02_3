@@ -17,8 +17,8 @@ export const deviceRepo = {
         }
     },
 
-    async updateDevice(deviceId: string, userId: string, lastActiveDate: string) {
-        return devicesCollection.findOneAndUpdate({userId}, {$set: {deviceId, lastActiveDate}})
+    async updateDevice(deviceId: string, userId: string, lastActiveDate: string, title: string) {
+        return devicesCollection.findOneAndUpdate({userId}, {$set: {deviceId, lastActiveDate, title}})
     },
 
 

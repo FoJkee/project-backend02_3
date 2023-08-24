@@ -59,7 +59,7 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     const deviceName = req.headers['user-agent'] || ''
     const refreshToken = req.cookies.refreshToken
 
-    const payload =jwtService.getLastActiveDateFromToken(refreshToken)
+    const payload = jwtService.getLastActiveDateFromToken(refreshToken)
     if (!payload) return res.sendStatus(401)
 
     const data = await jwtService.getUserByRefreshToken(refreshToken)
@@ -72,7 +72,7 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
 
     const newPayload = await jwtService.getLastActiveDateFromToken(newRefreshToken)
 
-    await deviceRepo.updateDevice(user.deviceId!, user.id, newPayload)
+    await deviceRepo.updateDevice(user.deviceId!, user.id, newPayload, deviceName)
 
     res.cookie('refreshToken', newRefreshToken, {httpOnly: true, secure: true})
     res.status(200).json({accessToken: accessToken})
@@ -82,28 +82,28 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
 authRouter.post('/login', deviceMiddleware, authPassMiddleware, errorsMiddleware,
     async (req: Request, res: Response) => {
 
-    const deviceName = req.headers['user-agent'] || ''
-    const deviceId = randomUUID()
+        const deviceName = req.headers['user-agent'] || ''
+        const deviceId = randomUUID()
 
-    const loginUser = await userService.checkCredentials(req.body.loginOrEmail,
-        req.body.password)
+        const loginUser = await userService.checkCredentials(req.body.loginOrEmail,
+            req.body.password)
 
-    if (!loginUser) {
-        res.sendStatus(401)
-        return
-    }
+        if (!loginUser) {
+            res.sendStatus(401)
+            return
+        }
 
-    if (loginUser) {
-        const accessToken = await jwtService.createAccessToken(loginUser._id)
-        const refreshToken = await jwtService.createRefreshToken(loginUser._id, deviceId)
+        if (loginUser) {
+            const accessToken = await jwtService.createAccessToken(loginUser._id)
+            const refreshToken = await jwtService.createRefreshToken(loginUser._id, deviceId)
 
-        const lastActiveDate = await jwtService.getLastActiveDateFromToken(refreshToken)
-        await deviceService.createDevice(loginUser._id.toString(), req.ip, deviceName, deviceId, lastActiveDate)
+            const lastActiveDate = await jwtService.getLastActiveDateFromToken(refreshToken)
+            await deviceService.createDevice(loginUser._id.toString(), req.ip, deviceName, deviceId, lastActiveDate)
 
-        res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})
-        res.status(200).json({accessToken: accessToken})
-    }
-})
+            res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})
+            res.status(200).json({accessToken: accessToken})
+        }
+    })
 
 
 authRouter.post('/logout', async (req: Request, res: Response) => {
