@@ -59,7 +59,7 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     const deviceName = req.headers['user-agent'] || ''
     const refreshToken = req.cookies.refreshToken
 
-    const payload = jstPayload(refreshToken)
+    const payload =jwtService.getLastActiveDateFromToken(refreshToken)
     if (!payload) return res.sendStatus(401)
 
     const data = await jwtService.getUserByRefreshToken(refreshToken)
@@ -68,25 +68,19 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     if (!user) return res.sendStatus(401)
 
     const accessToken = await jwtService.createAccessToken(new ObjectId(user.id))
-    const newRefreshToken = await jwtService.createRefreshToken(new ObjectId(user.id), payload.deviceId)
+    const newRefreshToken = await jwtService.createRefreshToken(new ObjectId(user.id), user.deviceId!)
 
-    const newPayload = jstPayload(newRefreshToken)
+    const newPayload = await jwtService.getLastActiveDateFromToken(newRefreshToken)
 
-    await deviceRepo.updateDevice(payload.deviceId, {
-        deviceId: payload.deviceId,
-        userId: user.id,
-        ip: req.ip,
-        title: deviceName,
-        lastActiveDate: new Date(newPayload!.iat).toISOString()
-    })
+    await deviceRepo.updateDevice(user.deviceId!, user.id, newPayload)
 
     res.cookie('refreshToken', newRefreshToken, {httpOnly: true, secure: true})
     res.status(200).json({accessToken: accessToken})
     return
 
 })
-
-authRouter.post('/login', deviceMiddleware, authPassMiddleware, errorsMiddleware, async (req: Request, res: Response) => {
+authRouter.post('/login', deviceMiddleware, authPassMiddleware, errorsMiddleware,
+    async (req: Request, res: Response) => {
 
     const deviceName = req.headers['user-agent'] || ''
     const deviceId = randomUUID()
